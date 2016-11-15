@@ -24,6 +24,7 @@ app.get('/inbound', function (req, res) {
     console.log(req.query.xml)
     xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true }, function (err, result) {
         var jsonResults=JSON.stringify(result)
+        console.log(jsonResults)
         console.log(jsonResults.trumpia)
     });
     res.render(
