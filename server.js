@@ -6,7 +6,7 @@ var inbounds=0
 
 
 
-var parseString = require('xml2js').parseString;
+var xml2js = require('xml2js')
 
 
 
@@ -22,9 +22,9 @@ app.get('/inbound', function (req, res) {
     console.log('inbound text received')
     inbounds++
     console.log(req.query.xml)
-    parseString(req.query.xml, function (err, result) {
+    xml2js.parseString(req.query.xml, {}, function (err, result) {
         console.dir(result)
-        console.log(result)
+        console.log(result.trumpia)
     });
     res.render(
         'index',
