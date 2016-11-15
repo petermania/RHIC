@@ -25,7 +25,7 @@ app.get('/inbound', function (req, res) {
     parseString(req.query.xml, function (err, result) {
         console.dir(result)
         var jsonResult=JSON.parse(result)
-        console.log(jsonResult.phonenumber)
+        console.log(jsonResult.phonenumber[0])
     });
     res.render(
         'index',
