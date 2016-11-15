@@ -22,7 +22,7 @@ app.get('/inbound', function (req, res) {
     var text ='{"TRUMPIA":{"PUSH_ID":"51422124","INBOUND_ID":"48494729","SUBSCRIPTION_UID":"142136527","PHONENUMBER":"9179522360","KEYWORD":"RHIC","DATA_CAPTURE":"","CONTENTS":"","ATTACHMENT":""}}'
 
     xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true, trim : true }, function (err, result) {
-        var results = "'"+JSON.stringify(result)+"'"
+        var results = JSON.stringify(result)
         console.log(results)
         var json = JSON.parse(results)
         console.log(json.TRUMPIA.PUSH_ID)
