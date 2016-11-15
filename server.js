@@ -70,6 +70,6 @@ app.get('/inbound', function (req, res) {
         { title: 'INBOUND SMS', message: 'This is the inbound xml page'})
 })
 
-app.listen(3000, function () {
+app.listen(8080, function () {
     console.log('Example app listening on port 3000!')
 })
