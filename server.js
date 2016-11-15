@@ -16,10 +16,9 @@ parseString(xml, function (err, result) {
 app.set('view engine', 'pug')
 
 app.get('/', function (req, res) {
-    res.render(
-        'index',
-        { title: 'Hey Hey Hey!', message: 'Yo Yo'})
-})
+  res.render(
+      'index',
+      { title: 'INBOUND SMS', message: 'Inbound Number '+inbounds+' Received!'})
 
 app.get('/inbound', function (req, res) {
     console.log('inbound text received')
