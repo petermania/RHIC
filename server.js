@@ -2,6 +2,8 @@ var express = require('express')
 var app = express()
 var http=require('http')
 
+var inbounds=0
+
 
 
 var parseString = require('xml2js').parseString;
@@ -23,7 +25,7 @@ app.get('/inbound', function (req, res) {
     console.log('inbound text received')
     res.render(
         'index',
-        { title: 'INBOUND SMS', message: 'Inbound Received!'})
+        { title: 'INBOUND SMS', message: 'Inbound Number '+inbounds+' Received!'})
 })
 
 app.listen(8080, function () {
