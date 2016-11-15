@@ -23,6 +23,7 @@ app.get('/', function (req, res) {
 
 app.get('/inbound', function (req, res) {
     console.log('inbound text received')
+    inbounds++
     res.render(
         'index',
         { title: 'INBOUND SMS', message: 'Inbound Number '+inbounds+' Received!'})
