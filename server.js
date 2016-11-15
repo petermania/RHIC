@@ -22,7 +22,7 @@ app.get('/inbound', function (req, res) {
     console.log('inbound text received')
     inbounds++
     console.log(req.query.xml)
-    xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true }, function (err, result) {
+    xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true, trim : true }, function (err, result) {
         var results = JSON.stringify(result)
         console.log(results)
         console.log(results.trumpia)
