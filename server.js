@@ -23,7 +23,9 @@ app.get('/inbound', function (req, res) {
     inbounds++
     console.log(req.query.xml)
     xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true }, function (err, result) {
-        console.dir(JSON.parse(JSON.stringify(result)))
+        var jsonResults=JSON.stringify(result)
+        var results=JSON.parse(jsonResults)
+        console.log(results)
     });
     res.render(
         'index',
