@@ -24,9 +24,10 @@ app.get('/inbound', function (req, res) {
     console.log(req.query.xml)
     xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true }, function (err, result) {
         var jsonResults=JSON.stringify(result)
+        jsonResults=jsonResults.trim()
         console.log(jsonResults)
         var obj = JSON.parse(jsonResults)
-        console.log(obj)
+        console.log(obj.trumpia)
     });
     res.render(
         'index',
