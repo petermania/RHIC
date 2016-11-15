@@ -23,8 +23,7 @@ app.get('/inbound', function (req, res) {
     inbounds++
     console.log(req.query.xml)
     xml2js.parseString(req.query.xml, {}, function (err, result) {
-        console.dir(result)
-        console.dir(result.trumpia)
+        console.dir(JSON.stringify(result))
     });
     res.render(
         'index',
