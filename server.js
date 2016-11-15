@@ -26,7 +26,7 @@ app.get('/inbound', function (req, res) {
         var jsonResults=JSON.stringify(result)
         console.log(jsonResults)
         var obj = JSON.parse(jsonResults)
-        console.log(jsonResults.TRUMPIA.PHONENUMBER)
+        console.log(obj.trumpia)
     });
     res.render(
         'index',
