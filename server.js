@@ -27,7 +27,7 @@ app.get('/inbound', function (req, res) {
         jsonResults=jsonResults.trim()
         console.log(jsonResults)
         var obj = JSON.parse(jsonResults)
-        console.log(obj.trumpia)
+        console.log(obj)
     });
     res.render(
         'index',
