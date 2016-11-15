@@ -23,9 +23,7 @@ app.get('/inbound', function (req, res) {
     inbounds++
     console.log(req.query.xml)
     parseString(req.query.xml, function (err, result) {
-        console.dir(result.trumpia)
-        console.log(result.trumpia.phonenumber)
-        console.log(result.trumpia.contents)
+        console.dir(result)
     });
     res.render(
         'index',
