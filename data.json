@@ -1,0 +1,43 @@
+[
+  { "id":"00001",
+    "vote_text":"Are you BULLISH or BEARISH on the Fed raising interest rates. Txt BULL or BEAR to vote.",
+    "order":1,
+    "status":"inactive",
+    "time":""
+  },
+  {
+    "id":"00002",
+    "vote_text":"Are you BULLISH or BEARISH on the future of the planet. Txt BULL or BEAR to vote.",
+    "order":3,
+    "status":"inactive",
+    "time":""
+  },
+  {
+    "id":"00003",
+    "vote_text":"Are you BULLISH or BEARISH on the future of the planet. Txt BULL or BEAR to vote.",
+    "order":4,
+    "status":"inactive",
+    "time":""
+  },
+  {
+    "id":"00004",
+    "vote_text":"Are you BULLISH or BEARISH on the future of the planet. Txt BULL or BEAR to vote.",
+    "order":2,
+    "status":"inactive",
+    "time":""
+  },
+  {
+    "id":"00005",
+    "vote_text":"Are you BULLISH or BEARISH on the future of the planet. Txt BULL or BEAR to vote.",
+    "order":3,
+    "status":"active",
+    "time":""
+  },
+  {
+    "id":"00005",
+    "vote_text":"Are you BULLISH or BEARISH on the future of the planet. Txt BULL or BEAR to vote.",
+    "order":3,
+    "status":"used",
+    "time":""
+  }
+]
