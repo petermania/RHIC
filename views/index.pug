@@ -7,43 +7,85 @@ html
   body
     div.container
       h1 Active Vote
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Launch
-        tbody
-          each result in results
-            if(result.status=='active')
+      if (active.length>0)
+        table.table.table-bordered
+          thead
+            tr
+              td Question
+              td Preview
+              td Present
+              td Launch
+          tbody
+            each result in active
               tr.danger
                 td #{result.vote_text}
                 td
+                  button.btn.btn-large.btn-primary(type="submit") Preview
+                td
+                  button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
+                td
                   button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Vote
+
       h1 Draft Votes
-      table.table.table-bordered
-        thead
-          tr
-            td Order
-            td Question
-            td Launch
-        tbody
-          each result in results
-            if(result.status=='inactive')
-              tr
-                td
-                  input.input-block-level(type="text", name="order", placeholder=result.order)
-                td #{result.vote_text}
-                td
-                  button.btn.btn-large.btn-primary(type="submit") Launch
+      button.btn.btn-large.btn-primary(type="button", data-toggle="collapse", data-target="#newVote", aria-expanded="false", aria-controls="newVote",style={'margin-bottom':'14px'}) Create New
+      div.collapse#newVote
+        form(action="/add-vote", method="get")
+          div.form-group.row
+            label.col-xs-3.col-md-2.col-form-label(for='question_text') Text (limit 110 char)
+            div.col-xs-8.col-md-10
+              input.form-control(type="text", name="vote_text", placeholder='Question Text', id='question_text')
+          div.form-group.row
+            label.col-xs-2.col-md-1.col-form-label Order
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", placeholder='Order')
+            label.col-xs-2.col-md-1.col-form-label Yes Txt
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="yes_text", placeholder='Yes')
+            label.col-xs-2.col-md-1.col-form-label No Txt
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="no_text", placeholder='No')
+            div.col-xs-3.col-md-2
+              button.btn.btn-large.btn-primary.form-control(type="submit") Save
+      if (inactive.length>0)
+        form.form-horizontal
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              label Order
+            div.col-xs-6
+              label Text
+            div.col-xs-2.col-md-1
+              label Yes Txt
+            div.col-xs-2.col-md-1
+              label No Txt
+            div.col-xs-2.col-md-1
+              label Save
+            div.col-xs-2.col-md-1
+              label Launch
+        each result in inactive
+          form.form-horizontal(action="/trigger-vote", method="get")
+            div.form-group.form-group-lg
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="order", value=result.order)
+              div.col-xs-6
+                input.form-control(type="text", name="vote_text", value=result.vote_text)
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="yes_text", value=result.yes_text)
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="no_text", value=result.no_text)
+              input.form-control.hidden(type="text", name="vote_id", value=result.vote_id)
+              div.col-xs-2.col-md-1
+                button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
+              div.col-xs-2.col-md-1
+                button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
       h1 Previous Votes
-      table.table.table-bordered
-        thead
-          tr
-            td Order
-            td Question
-        tbody
-          each result in results
-            if(result.status=='used')
+      if(used.length>0)
+        table.table.table-bordered
+          thead
+            tr
+              td Order
+              td Question
+          tbody
+            each result in used
               tr.active
                 td
                   input.input-block-level(type="text", name="order", placeholder=result.order)
