@@ -28,6 +28,7 @@ var current
 
 var setCurrentVote = function() {
   MongoClient.connect(url, function(err, db) {
+    console.log("Connected successfully to db server");
     assert.equal(null, err)
     var col=db.collection('votes')
     col.find({status:'active'}).toArray(function(err,actRes){
@@ -45,17 +46,17 @@ var setCurrentVote = function() {
   })
 }
 
-// setCurrentVote()
+setCurrentVote()
 
 app.get('/', function (req, res) {
-  console.log('init')
+  // console.log('init')
   // MongoClient.connect(url, function(err, db) {
   //   assert.equal(null, err);
   //   console.log("Connected successfully to db server");
   //   loadVotes(db, function() {
   //     console.log('callback')
   //     db.close()
-  //     res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
+      res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
   //   });
   // });
 })
