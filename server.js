@@ -45,7 +45,7 @@ var setCurrentVote = function() {
   })
 }
 
-setCurrentVote()
+// setCurrentVote()
 
 app.get('/', function (req, res) {
   console.log('init')
