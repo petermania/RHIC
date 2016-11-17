@@ -32,7 +32,7 @@ var setCurrentVote = function() {
     assert.equal(null, err)
     var col=db.collection('votes')
     col.find({status:'active'}).toArray(function(err,actRes){
-      if(actRes[0]){
+      if(actRes){
         current=actRes[0].vote_id
         console.log(current)
         console.log(actRes)
@@ -57,8 +57,8 @@ app.get('/', function (req, res) {
       console.log('callback')
       db.close()
       res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
-    });
-  });
+    })
+  })
 })
 
 app.get('/test', function (req, res){
