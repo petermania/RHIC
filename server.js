@@ -19,7 +19,8 @@ var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
 // Connection URL
-var url = 'mongodb://localhost:27017/RHIC';
+//var url = 'mongodb://localhost:27017/RHIC';
+var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC';
 
 var active = []
 var inactive = []
@@ -34,8 +35,7 @@ var setCurrentVote = function() {
     col.find({status:'active'}).toArray(function(err,actRes){
       if(actRes){
         current=actRes[0].vote_id
-        console.log(current)
-        console.log(actRes)
+        console.log("current: "+current)
       }
       else{
         console.log("no active vote")
