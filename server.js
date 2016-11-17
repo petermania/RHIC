@@ -47,7 +47,7 @@ var setCurrentVote = function() {
 setCurrentVote()
 
 app.get('/', function (req, res) {
-
+  console.log('init')
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to db server");
