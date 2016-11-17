@@ -49,15 +49,15 @@ var setCurrentVote = function() {
 
 app.get('/', function (req, res) {
   console.log('init')
-  MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected successfully to db server");
-    loadVotes(db, function() {
-      console.log('callback')
-      db.close()
-      res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
-    });
-  });
+  // MongoClient.connect(url, function(err, db) {
+  //   assert.equal(null, err);
+  //   console.log("Connected successfully to db server");
+  //   loadVotes(db, function() {
+  //     console.log('callback')
+  //     db.close()
+  //     res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
+  //   });
+  // });
 })
 
 app.get('/add-vote', function (req, res) {
