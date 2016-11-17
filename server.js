@@ -41,6 +41,7 @@ var setCurrentVote = function() {
         current=0
       }
     })
+    db.close()
   })
 }
 
