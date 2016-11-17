@@ -33,7 +33,7 @@ var setCurrentVote = function() {
     assert.equal(null, err)
     var col=db.collection('votes')
     col.find({status:'active'}).toArray(function(err,actRes){
-      if(actRes){
+      if(actRes[0]){
         current=actRes[0].vote_id
         console.log("current: "+current)
       }
