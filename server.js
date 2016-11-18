@@ -187,11 +187,26 @@ var launchVote = function(db, req, callback) {
 }
 
 var sendVoteSMS = function(text, callback){
-  request("http://api.trumpia.com/http/v2/sendtolist?apikey=367ab873208291dc5b2eb7f907e491d6&list_names=RHIC%20Testing%20List&email_mode=FALSE&sms_mode=TRUE&description=sentvote&sms_message=test", function (error, response, body) {
-    console.log("sending text")
-    if (!error) {
-      console.log(body) // Show the HTML for the Google homepage.
-    }
-    callback()
-  })
+  var options = {
+      host: 'api.trumpia.com',
+      path: '/rest/v1/PEDG2016/message',
+      method: 'GET',
+      headers:{
+        'Content-Type':'application/json',
+        'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      }}
+
+      var rest=http.get(options,function(results){
+        console.log('STATUS: ' + results.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(results.headers));
+
+      })
+
+  // request("http://api.trumpia.com/http/v2/sendtolist?apikey=367ab873208291dc5b2eb7f907e491d6&list_names=RHIC%20Testing%20List&email_mode=FALSE&sms_mode=TRUE&description=sentvote&sms_message=test", function (error, response, body) {
+  //   console.log("sending text")
+  //   if (!error) {
+  //     console.log(body) // Show the HTML for the Google homepage.
+  //   }
+  //   callback()
+  // })
 }
