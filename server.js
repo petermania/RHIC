@@ -243,6 +243,7 @@ var loadPolls = function(db, callback) {
           callback()
         })
       })
+
     })
   })
 }
