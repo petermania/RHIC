@@ -121,8 +121,8 @@ app.get('/inbound', function (req, res) {
 })
 
 app.put('/push', function(req,res){
-    console.log("push:")
-    console.log(req)
+    console.log("push received")
+    // console.log(req)
 })
 
 app.get('/org',function (req,res){
