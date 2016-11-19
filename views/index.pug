@@ -6,7 +6,7 @@ html
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
   body
     div.container
-      h1 Active Vote
+      h1 Active Poll
       if (active.length>0)
         table.table.table-bordered
           thead
@@ -18,14 +18,14 @@ html
           tbody
             each result in active
               tr.active
-                td #{result.vote_text}
+                td #{result.poll_text}
                 td
                   button.btn.btn-large.btn-primary(type="submit") Preview
                 td
                   button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
                 td
-                  button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Vote
-      h1 Pending Vote
+                  button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Poll
+      h1 Pending Poll
       if (pending.length>0)
         table.table.table-bordered
           thead
@@ -37,22 +37,22 @@ html
           tbody
             each result in pending
               tr.danger
-                td #{result.vote_text}
+                td #{result.poll_text}
                 td
                   button.btn.btn-large.btn-primary(type="submit") Preview
                 td
                   button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
                 td
-                  button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Vote
+                  button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Poll
 
-      h1 Draft Votes
-      button.btn.btn-large.btn-primary(type="button", data-toggle="collapse", data-target="#newVote", aria-expanded="false", aria-controls="newVote",style={'margin-bottom':'14px'}) Create New
-      div.collapse#newVote
-        form(action="/add-vote", method="get")
+      h1 Draft Polls
+      button.btn.btn-large.btn-primary(type="button", data-toggle="collapse", data-target="#newPoll", aria-expanded="false", aria-controls="newPoll",style={'margin-bottom':'14px'}) Create New
+      div.collapse#newPoll
+        form(action="/add-poll", method="get")
           div.form-group.row
             label.col-xs-3.col-md-2.col-form-label(for='question_text') Text (limit 110 char)
             div.col-xs-8.col-md-10
-              input.form-control(type="text", name="vote_text", placeholder='Question Text', id='question_text')
+              input.form-control(type="text", name="poll_text", placeholder='Question Text', id='question_text')
           div.form-group.row
             label.col-xs-2.col-md-1.col-form-label Order
             div.col-xs-2.col-md-1
@@ -81,22 +81,22 @@ html
             div.col-xs-2.col-md-1
               label Launch
         each result in inactive
-          form.form-horizontal(action="/trigger-vote", method="get")
+          form.form-horizontal(action="/trigger-poll", method="get")
             div.form-group.form-group-lg
               div.col-xs-2.col-md-1
                 input.form-control(type="text", name="order", value=result.order)
               div.col-xs-6
-                input.form-control(type="text", name="vote_text", value=result.vote_text)
+                input.form-control(type="text", name="poll_text", value=result.poll_text)
               div.col-xs-2.col-md-1
                 input.form-control(type="text", name="yes_text", value=result.yes_text)
               div.col-xs-2.col-md-1
                 input.form-control(type="text", name="no_text", value=result.no_text)
-              input.form-control.hidden(type="text", name="vote_id", value=result.vote_id)
+              input.form-control.hidden(type="text", name="poll_id", value=result.poll_id)
               div.col-xs-2.col-md-1
                 button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
               div.col-xs-2.col-md-1
                 button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
-      h1 Previous Votes
+      h1 Previous Polls
       if(used.length>0)
         table.table.table-bordered
           thead
@@ -108,4 +108,4 @@ html
               tr.active
                 td
                   input.input-block-level(type="text", name="order", placeholder=result.order)
-                td #{result.vote_text}
+                td #{result.poll_text}

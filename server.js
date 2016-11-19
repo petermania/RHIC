@@ -32,18 +32,18 @@ var used = []
 var pending = []
 var current
 
-var setCurrentVote = function() {
+var setCurrentPoll = function() {
   MongoClient.connect(url, function(err, db) {
     console.log("Connected successfully to db server");
     assert.equal(null, err)
-    var col=db.collection('votes')
+    var col=db.collection('polls')
     col.find({status:'active'}).toArray(function(err,actRes){
       if(actRes[0]){
-        current=actRes[0].vote_id
+        current=actRes[0].poll_id
         console.log("current: "+current)
       }
       else{
-        console.log("no active vote")
+        console.log("no active poll")
         current=0
       }
     })
@@ -51,29 +51,29 @@ var setCurrentVote = function() {
   })
 }
 
-setCurrentVote()
+setCurrentPoll()
 
 app.get('/', function (req, res) {
   console.log('init')
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to db server");
-    loadVotes(db, function() {
-      console.log('callback')
+    loadPolls(db, function() {
+      console.log('loading')
       db.close()
       res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
     })
   })
 })
 
-app.get('/add-vote', function (req, res) {
-  console.log(req.query.vote_text)
+app.get('/add-poll', function (req, res) {
+  console.log(req.query.poll_text)
   console.log(req.query.order)
   // Use connect method to connect to the server
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     console.log("Connected successfully to db server");
-    insertVote(db, req, function() {
+    insertPoll(db, req, function() {
       console.log('reload')
       db.close();
       res.redirect('/')
@@ -81,13 +81,13 @@ app.get('/add-vote', function (req, res) {
   });
 });
 
-app.get('/trigger-vote', function (req, res) {
+app.get('/trigger-poll', function (req, res) {
   if(req.query.trigger=='save'){
     // Use connect method to connect to the server
     MongoClient.connect(url, function(err, db) {
       assert.equal(null, err)
       console.log("Connected successfully to db server")
-      saveVote(db, req, function() {
+      savePoll(db, req, function() {
         console.log('reload')
         db.close()
         res.redirect('/')
@@ -99,8 +99,8 @@ app.get('/trigger-vote', function (req, res) {
     MongoClient.connect(url, function(err, db) {
       assert.equal(null, err)
       console.log("Connected successfully to db server")
-      launchVote(db,req,function(){
-        console.log('launching new vote')
+      launchPoll(db,req,function(){
+        console.log('launching new poll')
         db.close()
         res.redirect('/')
       })
@@ -168,21 +168,21 @@ app.listen(8080, function () {
     console.log('Listening on port 8080')
 })
 
-var insertVote = function(db, req, callback) {
-  var col = db.collection('votes')
-  col.insertOne({'vote_text' : req.query.vote_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'vote_id' : Date.now(), 'launch_time' : '', 'end_time':'','yes_text':req.query.yes_text,'no_text':req.query.no_text}, function(err, r) {
+var insertPoll = function(db, req, callback) {
+  var col = db.collection('polls')
+  col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','yes_text':req.query.yes_text,'no_text':req.query.no_text}, function(err, r) {
     assert.equal(null, err);
     assert.equal(1, r.insertedCount);
     callback()
   });
 }
 
-var saveVote = function(db, req, callback) {
+var savePoll = function(db, req, callback) {
   console.log('updating')
-  var col = db.collection('votes')
-  console.log(req.query.vote_id)
-  col.updateOne({vote_id:parseInt(req.query.vote_id)},
-    {$set: {vote_text:req.query.vote_text, order:parseInt(req.query.order), yes_text:req.query.yes_text, no_text:req.query.no_text}},
+  var col = db.collection('polls')
+  console.log(req.query.poll_id)
+  col.updateOne({poll_id:parseInt(req.query.poll_id)},
+    {$set: {poll_text:req.query.poll_text, order:parseInt(req.query.order), yes_text:req.query.yes_text, no_text:req.query.no_text, message_id:''}},
     {upsert:false},
     function(err, r) {
       assert.equal(null, err);
@@ -193,17 +193,44 @@ var saveVote = function(db, req, callback) {
   });
 }
 
-var loadVotes = function(db, callback) {
-  var act=db.collection('votes')
-  act.find({status:'active'}).toArray(function(err,actRes){
+var loadPolls = function(db, callback) {
+  var col=db.collection('polls')
+  col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes) active=actRes
-    act.find({status:'pending'}).toArray(function(err,pendRes){
-      if(pendRes) pending=pendRes
-      act.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+    col.find({status:'pending'}).toArray(function(err,pendRes){
+      if(pendRes) {
+        pending=pendRes,
+        pending.forEach(function(element){
+          console.log(element)
+          var options = {
+            uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+element.message_id,
+            method: 'GET',
+            headers:{
+              'Content-Type':'application/json',
+              'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+            }
+          }
+
+          request(options,function (err, httpResponse, body2) {
+            if (err) {
+              return console.error('message send failed:', err)
+            }
+            if(JSON.parse(body2).status=='sent'){
+              col.updateOne({message_id:element.message_id},
+                {$set: {status:'active'}},
+                {upsert:false},
+                function(err, r) {
+                  console.log(element.message_id+" updated to ACTIVE")
+              })
+            }
+          })
+        })
+      }
+      col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
         if(inactRes) {
           inactive=inactRes
         }
-        act.find({status:'used'}).toArray(function(err, usedRes){
+        col.find({status:'used'}).toArray(function(err, usedRes){
           if (usedRes) used=usedRes
           console.log('loaded')
           assert.equal(null, err)
@@ -214,22 +241,27 @@ var loadVotes = function(db, callback) {
   })
 }
 
-var launchVote = function(db, req, callback) {
+var launchPoll = function(db, req, callback) {
   console.log('launching')
-  var col = db.collection('votes')
+  var col = db.collection('polls')
   col.updateMany({status:'active'},
     {$set: {status:'used','end_time':Date.now()}},
     {upsert:false},
     function(err, r) {
       assert.equal(null, err);
-      current=parseInt(req.query.vote_id)
-      col.updateOne({vote_id:parseInt(req.query.vote_id)},
+      current=parseInt(req.query.poll_id)
+      col.updateOne({poll_id:parseInt(req.query.poll_id)},
         {$set: {status:'pending','launch_time':Date.now()}},
         {upsert:false},
         function(err, r) {
           assert.equal(null, err)
-          sendVoteSMS(req.query.vote_text,function(){
-            callback()
+          sendPollSMS(req.query.poll_text,function(message_id){
+            col.updateOne({poll_id:parseInt(req.query.poll_id)},
+              {$set: {message_id:message_id}},
+              {upsert:false},
+              function(err, r) {
+                callback()
+              })
           })
       })
   })
@@ -237,14 +269,14 @@ var launchVote = function(db, req, callback) {
 
 
 
-var sendVoteSMS = function(text, callback){
+var sendPollSMS = function(text, callback){
   console.log("prepping text")
 
   var body ={
     org_name_id:135715,
     description:text,
     sms:{
-      message:'test2'
+      message:' '+text
     },
     recipients:{
       type:'list',
@@ -262,15 +294,12 @@ var sendVoteSMS = function(text, callback){
     body: JSON.stringify(body)
   }
 
-
-
-
   request(options,function (err, httpResponse, body2) {
     if (err) {
       return console.error('message send failed:', err)
     }
     console.log('Upload successful!  Server responded with:', body2)
     currentMessage=JSON.parse(body2).message_id
-    callback()
+    callback(currentMessage)
     })
 }
