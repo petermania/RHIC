@@ -59,7 +59,7 @@ app.get('/', function (req, res) {
     assert.equal(null, err);
     console.log("Connected successfully to db server");
     loadPolls(db, function() {
-      console.log('loading')
+      console.log('finished loading data')
       db.close()
       res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
     })
@@ -199,8 +199,7 @@ var loadPolls = function(db, callback) {
     if(actRes) active=actRes
     col.find({status:'pending'}).toArray(function(err,pendRes){
       if(pendRes) {
-        pending=pendRes,
-        pending.forEach(function(element){
+        pendRes.forEach(function(element){
           console.log(element)
           var options = {
             uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+element.message_id,
@@ -223,6 +222,7 @@ var loadPolls = function(db, callback) {
                   console.log(element.message_id+" updated to ACTIVE")
               })
             }
+          pending=pendRes
           })
         })
       }
