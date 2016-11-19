@@ -231,18 +231,21 @@ var loadPolls = function(db, callback) {
             }
           })
         })
-      }
-      col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-        if(inactRes) {
-          inactive=inactRes
-        }
-        col.find({status:'used'}).toArray(function(err, usedRes){
-          if (usedRes) used=usedRes
-          console.log('loaded')
-          assert.equal(null, err)
-          callback()
+        col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+          if(inactRes) {
+            inactive=inactRes
+          }
+          col.find({status:'used'}).toArray(function(err, usedRes){
+            if (usedRes) used=usedRes
+            console.log('loaded')
+            assert.equal(null, err)
+            callback()
+          })
         })
-      })
+      }
+      else{
+
+    }
 
     })
   })
