@@ -110,6 +110,7 @@ app.get('/trigger-vote', function (req, res) {
 
 app.get('/inbound', function (req, res) {
       xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true, trim : true }, function (err, result) {
+        console.log("inbound:")
         var results = JSON.stringify(result)
         console.log(results)
         var json = JSON.parse(results)
@@ -117,6 +118,11 @@ app.get('/inbound', function (req, res) {
         console.log(json.TRUMPIA.PHONENUMBER)
         console.log(json.TRUMPIA.CONTENTS)
     });
+})
+
+app.get('/push', function(req,res){
+    console.log("push:")
+    console.log(req)
 })
 
 app.get('/org',function (req,res){
@@ -156,10 +162,6 @@ app.get('/check',function(req,res){
       console.log(body2)
 
     })
-})
-
-app.get('/push',function(req,res){
-    console.log(req)
 })
 
 app.listen(8080, function () {
