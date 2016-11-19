@@ -10,6 +10,8 @@ var xml2js = require('xml2js')
 
 var fs = require("fs")
 
+var currentMessage;
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -18,6 +20,8 @@ app.set('view engine', 'pug')
 var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
+
+
 // Connection URL
 //var url = 'mongodb://localhost:27017/RHIC';
 var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC';
@@ -25,6 +29,7 @@ var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:
 var active = []
 var inactive = []
 var used = []
+var pending = []
 var current
 
 var setCurrentVote = function() {
@@ -56,13 +61,9 @@ app.get('/', function (req, res) {
     loadVotes(db, function() {
       console.log('callback')
       db.close()
-      res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
+      res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
     })
   })
-})
-
-app.get('/test', function (req, res){
-    res.render('index',{active : active, inactive : inactive, used : used, title : 'Test'})
 })
 
 app.get('/add-vote', function (req, res) {
@@ -118,6 +119,49 @@ app.get('/inbound', function (req, res) {
     });
 })
 
+app.get('/org',function (req,res){
+  var options = {
+    uri: 'http://api.trumpia.com/rest/v1/PEDG2016/orgname',
+    method: 'GET',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+    }
+  }
+
+  request(options,function (err, httpResponse, body2) {
+    if (err) {
+      return console.error('message send failed:', err)
+    }
+      console.log(body2)
+  })
+
+})
+
+app.get('/check',function(req,res){
+
+  var options = {
+    uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+currentMessage,
+    method: 'GET',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+    }
+  }
+
+  request(options,function (err, httpResponse, body2) {
+    if (err) {
+      return console.error('message send failed:', err)
+    }
+      console.log(body2)
+
+    })
+})
+
+app.get('/push',function(req,res){
+    console.log(req)
+})
+
 app.listen(8080, function () {
     console.log('Listening on port 8080')
 })
@@ -151,15 +195,18 @@ var loadVotes = function(db, callback) {
   var act=db.collection('votes')
   act.find({status:'active'}).toArray(function(err,actRes){
     if(actRes) active=actRes
-    act.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-      if(inactRes) {
-        inactive=inactRes
-      }
-      act.find({status:'used'}).toArray(function(err, usedRes){
-        if (usedRes) used=usedRes
-        console.log('loaded')
-        assert.equal(null, err)
-        callback()
+    act.find({status:'pending'}).toArray(function(err,pendRes){
+      if(pendRes) pending=pendRes
+      act.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+        if(inactRes) {
+          inactive=inactRes
+        }
+        act.find({status:'used'}).toArray(function(err, usedRes){
+          if (usedRes) used=usedRes
+          console.log('loaded')
+          assert.equal(null, err)
+          callback()
+        })
       })
     })
   })
@@ -175,7 +222,7 @@ var launchVote = function(db, req, callback) {
       assert.equal(null, err);
       current=parseInt(req.query.vote_id)
       col.updateOne({vote_id:parseInt(req.query.vote_id)},
-        {$set: {status:'active','launch_time':Date.now()}},
+        {$set: {status:'pending','launch_time':Date.now()}},
         {upsert:false},
         function(err, r) {
           assert.equal(null, err)
@@ -186,27 +233,42 @@ var launchVote = function(db, req, callback) {
   })
 }
 
+
+
 var sendVoteSMS = function(text, callback){
+  console.log("prepping text")
+
+  var body ={
+    org_name_id:135715,
+    description:text,
+    sms:{
+      message:'test2'
+    },
+    recipients:{
+      type:'list',
+      value:1836875
+    }
+  }
+
   var options = {
-      host: 'api.trumpia.com',
-      path: '/rest/v1/PEDG2016/message',
-      method: 'GET',
-      headers:{
-        'Content-Type':'application/json',
-        'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
-      }}
+    uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message',
+    method: 'PUT',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+    },
+    body: JSON.stringify(body)
+  }
 
-      var rest=http.get(options,function(results){
-        console.log('STATUS: ' + results.statusCode);
-        console.log('HEADERS: ' + JSON.stringify(results.headers));
 
-      })
 
-  // request("http://api.trumpia.com/http/v2/sendtolist?apikey=367ab873208291dc5b2eb7f907e491d6&list_names=RHIC%20Testing%20List&email_mode=FALSE&sms_mode=TRUE&description=sentvote&sms_message=test", function (error, response, body) {
-  //   console.log("sending text")
-  //   if (!error) {
-  //     console.log(body) // Show the HTML for the Google homepage.
-  //   }
-  //   callback()
-  // })
+
+  request(options,function (err, httpResponse, body2) {
+    if (err) {
+      return console.error('message send failed:', err)
+    }
+    console.log('Upload successful!  Server responded with:', body2)
+    currentMessage=JSON.parse(body2).message_id
+    callback()
+    })
 }

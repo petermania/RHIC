@@ -17,6 +17,25 @@ html
               td Launch
           tbody
             each result in active
+              tr.active
+                td #{result.vote_text}
+                td
+                  button.btn.btn-large.btn-primary(type="submit") Preview
+                td
+                  button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
+                td
+                  button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Vote
+      h1 Pending Vote
+      if (pending.length>0)
+        table.table.table-bordered
+          thead
+            tr
+              td Question
+              td Preview
+              td Present
+              td Launch
+          tbody
+            each result in pending
               tr.danger
                 td #{result.vote_text}
                 td
