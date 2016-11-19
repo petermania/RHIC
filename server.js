@@ -120,7 +120,7 @@ app.get('/inbound', function (req, res) {
     });
 })
 
-app.get('/push', function(req,res){
+app.put('/push', function(req,res){
     console.log("push:")
     console.log(req)
 })
