@@ -216,7 +216,7 @@ var loadPolls = function(db, callback) {
               return console.error('message send failed:', err)
             }
             if(JSON.parse(body2).status=='sent'){
-              col.updateOne({message_id:element.message_id},
+              col.updateMany({message_id:element.message_id},
                 {$set: {status:'active'}},
                 {upsert:false},
                 function(err, r) {
