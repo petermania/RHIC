@@ -199,7 +199,8 @@ var loadPolls = function(db, callback) {
     if(actRes) active=actRes
     col.find({status:'pending'}).toArray(function(err,pendRes){
       if(pendRes) {
-        pendRes.forEach(function(element){
+        pending=pendRes,
+        pending.forEach(function(element){
           console.log(element)
           var options = {
             uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+element.message_id,
@@ -219,10 +220,15 @@ var loadPolls = function(db, callback) {
                 {$set: {status:'active'}},
                 {upsert:false},
                 function(err, r) {
+                  if(err){
+                    console.log("error: "+err)
+                  }
+                  else{
+                    console.log("write: "+r)
+                  }
                   console.log(element.message_id+" updated to ACTIVE")
               })
             }
-          pending=pendRes
           })
         })
       }
