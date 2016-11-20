@@ -112,7 +112,7 @@ app.get('/inbound', function (req, res) {
         MongoClient.connect(url, function(err, db) {
           assert.equal(null, err)
           console.log("Connected successfully to db server")
-          processInboundSMS(db, function{
+          processInboundSMS(db, function(){
             console.log("sms processed and counted")
             db.close()
             res.redirect('/')
