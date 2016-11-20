@@ -29,10 +29,6 @@ div.container
             button.btn.btn-large.btn-primary(name="trigger", type="submit", value="approve") Disapprove
           div.col-xs-2.col-md-1
             button.btn.btn-large.btn-primary(name="trigger", value="disapprove", type="submit",style={'background':'green','border-color':'green'}) Approve
-      tbody
-        each result in questions
-          tr.active
-            td #{result.question}
     h1 Disapproved Questions
     table.table.table-bordered
       thead
