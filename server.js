@@ -118,7 +118,7 @@ app.get('/inbound', function (req, res) {
               element=actRes[0]
               if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
                 console.log("yes received")
-                col.updateOne({poll_id:parseInt(element.query.poll_id)},
+                col.updateOne({poll_id:parseInt(element.poll_id)},
                   {$set: {yes_vote:element.yes_vote++}},
                   {upsert:false},
                   function(err, r) {
