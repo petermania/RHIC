@@ -24,6 +24,8 @@ var inactive = []
 var used = []
 var pending = []
 var questions = []
+var approved = []
+var disapproved = []
 var current
 
 var setCurrentPoll = function() {
@@ -132,7 +134,7 @@ app.get('/questions', function(req,res){
         console.log('finished loading data')
         db.close()
         console.log('db closed')
-        res.render('questions',{questions : questions, title : 'PEDG SMS System – Questions'})
+        res.render('questions',{questions : questions, approved:approved, disapproved:disapproved, title : 'PEDG SMS System – Questions'})
       })
     })
 })
@@ -208,9 +210,14 @@ var savePoll = function(db, req, callback) {
 var loadQuestions = function(db, callback){
   questions=[]
   var col=db.collection('questions')
-  col.find().toArray(function(err,res){
+  col.find({status:'new'}).toArray(function(err,res){
     questions=res
-    callback()
+    col.find({status:'approved'}).toArray(function(err,resApp){
+      approved=resApp
+      col.find({status:'disapproved'}).toArray(function(err,resDis){
+        disapproved=resDis
+      })
+    })
   })
 }
 
@@ -411,7 +418,7 @@ var processInboundSMS = function (db,json,callback){
       else {
         console.log("question")
         var votes=db.collection('questions')
-        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new'}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()

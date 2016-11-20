@@ -1,6 +1,18 @@
 include partials/header
 div.container
-    h1 Questions
+    h1 Approved Questions
+      table.table.table-bordered
+        thead
+          tr
+            td Question
+            td Preview
+            td Present
+            td Launch
+        tbody
+          each result in approved
+            tr.active
+              td #{result.question}
+    h1 Approved Questions
       table.table.table-bordered
         thead
           tr
@@ -10,5 +22,17 @@ div.container
             td Launch
         tbody
           each result in questions
+            tr.active
+              td #{result.question}
+    h1 Disapproved Questions
+      table.table.table-bordered
+        thead
+          tr
+            td Question
+            td Preview
+            td Present
+            td Launch
+        tbody
+          each result in disapproved
             tr.active
               td #{result.question}
