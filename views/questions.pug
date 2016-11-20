@@ -17,8 +17,7 @@ div.container
             td Question
             td Approve
             td Disapprove
-
-      each result in inactive
+      each result in questions
         form.form-horizontal(action="/trigger-poll", method="get")
           div.form-group.form-group-lg
             div.col-xs-2.col-md-1
