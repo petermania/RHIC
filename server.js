@@ -119,7 +119,7 @@ app.get('/inbound', function (req, res) {
               if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
                 console.log("yes received")
                 var votes=db.collection('votes')
-                col.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+                votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
                   assert.equal(null, err);
                   assert.equal(1, r.insertedCount);
                   res.redirect('/')
