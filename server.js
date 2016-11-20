@@ -216,6 +216,7 @@ var loadQuestions = function(db, callback){
       approved=resApp
       col.find({status:'disapproved'}).toArray(function(err,resDis){
         disapproved=resDis
+        callback()
       })
     })
   })
