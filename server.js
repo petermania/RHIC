@@ -357,7 +357,7 @@ var processInboundSMS = function (db,json,callback){
       if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
         console.log("yes received")
         var votes=db.collection('votes')
-        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()
@@ -366,7 +366,7 @@ var processInboundSMS = function (db,json,callback){
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
         console.log("no received")
         var votes=db.collection('votes')
-        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 0,'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()
@@ -375,7 +375,7 @@ var processInboundSMS = function (db,json,callback){
       else {
         console.log("question")
         var votes=db.collection('questions')
-        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS}, function(err, r) {
+        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()
