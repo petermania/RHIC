@@ -210,6 +210,7 @@ var loadQuestions = function(db, callback){
   var col=db.collection('questions')
   col.find().toArray(function(err,res){
     questions=res
+    callback()
   })
 }
 
