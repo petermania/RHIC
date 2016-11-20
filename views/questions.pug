@@ -1,45 +1,45 @@
 include partials/header
 div.container
     h1 Approved Questions
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Disapprove
-        tbody
-          each result in approved
-            tr.active
-              td #{result.question}
+    table.table.table-bordered
+      thead
+        tr
+          td Question
+          td Disapprove
+      tbody
+        each result in approved
+          tr.active
+            td #{result.question}
     h1 Pending Questions
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Approve
-            td Disapprove
-      each result in questions
-        form.form-horizontal(action="/trigger-poll", method="get")
-          div.form-group.form-group-lg
-            div.col-xs-2.col-md-1
-              input.form-control(type="text", name="order", value=result.order)
-            div.col-xs-6
-              input.form-control(type="text", name="poll_text", value=result.question)
-            input.form-control.hidden(type="text", name="poll_id", value=result.question_id)
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-primary(name="trigger", type="submit", value="approve") Disapprove
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-primary(name="trigger", value="disapprove", type="submit",style={'background':'green','border-color':'green'}) Approve
-        tbody
-          each result in questions
-            tr.active
-              td #{result.question}
+    table.table.table-bordered
+      thead
+        tr
+          td Question
+          td Approve
+          td Disapprove
+    each result in questions
+      form.form-horizontal(action="/trigger-poll", method="get")
+        div.form-group.form-group-lg
+          div.col-xs-2.col-md-1
+            input.form-control(type="text", name="order", value=result.order)
+          div.col-xs-6
+            input.form-control(type="text", name="poll_text", value=result.question)
+          input.form-control.hidden(type="text", name="poll_id", value=result.question_id)
+          div.col-xs-2.col-md-1
+            button.btn.btn-large.btn-primary(name="trigger", type="submit", value="approve") Disapprove
+          div.col-xs-2.col-md-1
+            button.btn.btn-large.btn-primary(name="trigger", value="disapprove", type="submit",style={'background':'green','border-color':'green'}) Approve
+      tbody
+        each result in questions
+          tr.active
+            td #{result.question}
     h1 Disapproved Questions
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Approve
-        tbody
-          each result in disapproved
-            tr.active
-              td #{result.question}
+    table.table.table-bordered
+      thead
+        tr
+          td Question
+          td Approve
+      tbody
+        each result in disapproved
+          tr.active
+            td #{result.question}
