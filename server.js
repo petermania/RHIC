@@ -421,7 +421,7 @@ var processInboundSMS = function (db,json,callback){
       else {
         console.log("question")
         var votes=db.collection('questions')
-        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new'}, function(err, r) {
+        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()

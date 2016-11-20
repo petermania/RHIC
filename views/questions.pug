@@ -5,9 +5,7 @@ div.container
         thead
           tr
             td Question
-            td Preview
-            td Present
-            td Launch
+            td Disapprove
         tbody
           each result in approved
             tr.active
@@ -17,9 +15,21 @@ div.container
         thead
           tr
             td Question
-            td Preview
-            td Present
-            td Launch
+            td Approve
+            td Disapprove
+
+      each result in inactive
+        form.form-horizontal(action="/trigger-poll", method="get")
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", value=result.order)
+            div.col-xs-6
+              input.form-control(type="text", name="poll_text", value=result.question)
+            input.form-control.hidden(type="text", name="poll_id", value=result.question_id)
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-primary(name="trigger", type="submit", value="approve") Disapprove
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-primary(name="trigger", value="disapprove", type="submit",style={'background':'green','border-color':'green'}) Approve
         tbody
           each result in questions
             tr.active
@@ -29,9 +39,7 @@ div.container
         thead
           tr
             td Question
-            td Preview
-            td Present
-            td Launch
+            td Approve
         tbody
           each result in disapproved
             tr.active
