@@ -371,7 +371,7 @@ var processInboundSMS = function (db,json,callback){
           }
         })//votes.find
       }//if includes
-      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
+      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.no_text.toLowerCase())){
         console.log("no received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
