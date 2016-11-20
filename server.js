@@ -34,7 +34,7 @@ var current
 
 var setCurrentPoll = function() {
   MongoClient.connect(url, function(err, db) {
-    console.log("Connected successfully to db server");
+    console.log("Connected successfully to db server to set current poll");
     assert.equal(null, err)
     var col=db.collection('polls')
     col.find({status:'active'}).toArray(function(err,actRes){
@@ -54,13 +54,14 @@ var setCurrentPoll = function() {
 setCurrentPoll()
 
 app.get('/', function (req, res) {
-  console.log('init')
+  console.log("Attempting Initial Connect to db")
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
-    console.log("Connected successfully to db server");
+    console.log("Connected successfully to db server to load page");
     loadPolls(db, function() {
       console.log('finished loading data')
       db.close()
+      console.log('db closed')
       res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
     })
   })
@@ -194,16 +195,23 @@ var savePoll = function(db, req, callback) {
 }
 
 var loadPolls = function(db, callback) {
+  active=[]
+  pending=[]
+  used=[]
+  inactive=[]
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes) active=actRes
+    console.log("Finding pending results")
     col.find({status:'pending'}).toArray(function(err,pendRes){
-      if(pendRes) {
-        pending=pendRes,
-        pending.forEach(function(element){
-          console.log(element)
+      if(pendRes.length>0) {
+        pending=pendRes
+        console.log(pending.length+" pending results")
+        for(var i=0, len=pending.length;i<len;i++){
+          element=pending[i]
+          // console.log(element)
           var options = {
-            uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+element.message_id,
+            uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
             method: 'GET',
             headers:{
               'Content-Type':'application/json',
@@ -212,11 +220,12 @@ var loadPolls = function(db, callback) {
           }
 
           request(options,function (err, httpResponse, body2) {
+            console.log(element)
             if (err) {
               return console.error('message send failed:', err)
             }
             if(JSON.parse(body2).status=='sent'){
-              col.updateMany({message_id:element.message_id},
+              col.updateMany({message_id: element.message_id},
                 {$set: {status:'active'}},
                 {upsert:false},
                 function(err, r) {
@@ -227,26 +236,55 @@ var loadPolls = function(db, callback) {
                     console.log("write: "+r)
                   }
                   console.log(element.message_id+" updated to ACTIVE")
+                  if(i==len){
+                    console.log("updated final pending item")
+                    col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+                      if(inactRes) {
+                        inactive=inactRes
+                      }
+                      col.find({status:'used'}).toArray(function(err, usedRes){
+                        if (usedRes) used=usedRes
+                        console.log('loaded all polls')
+                        assert.equal(null, err)
+                        callback()
+                      })
+                    })
+                  }
               })
             }
+            else{
+              console.log("Pending results not updated")
+              col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+                if(inactRes) {
+                  inactive=inactRes
+                }
+                col.find({status:'used'}).toArray(function(err, usedRes){
+                  if (usedRes) used=usedRes
+                  console.log('loaded all polls')
+                  assert.equal(null, err)
+                  callback()
+                })
+              })
+            }
+
           })
-        })
+        }
+
+      }
+      else{
+        console.log("No pending results found")
         col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
           if(inactRes) {
             inactive=inactRes
           }
           col.find({status:'used'}).toArray(function(err, usedRes){
             if (usedRes) used=usedRes
-            console.log('loaded')
+            console.log('loaded all polls')
             assert.equal(null, err)
             callback()
           })
         })
       }
-      else{
-
-    }
-
     })
   })
 }
