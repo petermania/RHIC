@@ -118,14 +118,12 @@ app.get('/inbound', function (req, res) {
               element=actRes[0]
               if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
                 console.log("yes received")
-                col.updateOne({poll_id:parseInt(element.poll_id)},
-                  {$set: {yes_vote:element.yes_vote++}},
-                  {upsert:false},
-                  function(err, r) {
-                    assert.equal(null, err);
-                    console.log(r.matchedCount)
-                    res.redirect('/')
-                })//update
+                var votes=db.collection('votes')
+                col.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+                  assert.equal(null, err);
+                  assert.equal(1, r.insertedCount);
+                  res.redirect('/')
+                })//col.insertOne
               }//if includes
             }//if(actRes)
           })//find active
