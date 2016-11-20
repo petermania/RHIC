@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var request=require('request')
 
 var xml2js = require('xml2js')
-
 var fs = require("fs")
 
 var currentMessage;
@@ -17,13 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'pug')
 
-var MongoClient = require('mongodb').MongoClient
-  , assert = require('assert');
-
-
-
 // Connection URL
-//var url = 'mongodb://localhost:27017/RHIC';
 var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC';
 
 var active = []
@@ -92,8 +85,8 @@ app.get('/trigger-poll', function (req, res) {
         console.log('reload')
         db.close()
         res.redirect('/')
-      });
-    });
+      })
+    })
   }
   else if(req.query.trigger=='launch'){
     console.log('launched')
@@ -115,14 +108,31 @@ app.get('/inbound', function (req, res) {
         var results = JSON.stringify(result)
         console.log(results)
         var json = JSON.parse(results)
-        console.log(json.TRUMPIA.INBOUND_ID)
-        console.log(json.TRUMPIA.PHONENUMBER)
         console.log(json.TRUMPIA.CONTENTS)
-    });
+        MongoClient.connect(url, function(err, db) {
+          assert.equal(null, err)
+          console.log("Connected successfully to db server")
+          var col=db.collection('polls')
+          col.find({status:'active'}).toArray(function(err,actRes){
+            if(actRes){
+              if(json.TRUMPIA.CONTENTS.includes(actRes[0].yes_text)){
+                col.updateOne({poll_id:parseInt(actRes[0].query.poll_id)},
+                  {$set: {yes_vote:actRes[0].yes_vote++}},
+                  {upsert:false},
+                  function(err, r) {
+                    assert.equal(null, err);
+                    console.log(r.matchedCount)
+                    callback()
+                })//update
+              }//if includes
+            }//if(actRes)
+          })//find active
+        })//mongoconnect
+    })//parseString
 })
 
-app.put('/push', function(req,res){
-    console.log("push received")
+app.get('/questions', function(req,res){
+    console.log("loading questions page")
     // console.log(req)
 })
 
@@ -171,7 +181,7 @@ app.listen(8080, function () {
 
 var insertPoll = function(db, req, callback) {
   var col = db.collection('polls')
-  col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','yes_text':req.query.yes_text,'no_text':req.query.no_text}, function(err, r) {
+  col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','yes_text':req.query.yes_text,'no_text':req.query.no_text, 'yes_vote':0, 'no_vote':0}, function(err, r) {
     assert.equal(null, err);
     assert.equal(1, r.insertedCount);
     callback()
@@ -303,7 +313,7 @@ var launchPoll = function(db, req, callback) {
         {upsert:false},
         function(err, r) {
           assert.equal(null, err)
-          sendPollSMS(req.query.poll_text,function(message_id){
+          sendPollSMS(req.query.poll_text,req.query.yes_text,req.query.no_text,function(message_id){
             col.updateOne({poll_id:parseInt(req.query.poll_id)},
               {$set: {message_id:message_id}},
               {upsert:false},
@@ -315,16 +325,13 @@ var launchPoll = function(db, req, callback) {
   })
 }
 
-
-
-var sendPollSMS = function(text, callback){
+var sendPollSMS = function(text, yes, no, callback){
   console.log("prepping text")
-
   var body ={
     org_name_id:135715,
     description:text,
     sms:{
-      message:' '+text
+      message:' '+text+' Txt '+yes.toUpperCase()+' or '+no.toUpperCase()+' to vote.'
     },
     recipients:{
       type:'list',
