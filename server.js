@@ -112,21 +112,11 @@ app.get('/inbound', function (req, res) {
         MongoClient.connect(url, function(err, db) {
           assert.equal(null, err)
           console.log("Connected successfully to db server")
-          var col=db.collection('polls')
-          col.find({status:'active'}).toArray(function(err,actRes){
-            if(actRes){
-              element=actRes[0]
-              if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
-                console.log("yes received")
-                var votes=db.collection('votes')
-                votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
-                  assert.equal(null, err);
-                  assert.equal(1, r.insertedCount);
-                  res.redirect('/')
-                })//col.insertOne
-              }//if includes
-            }//if(actRes)
-          })//find active
+          processInboundSMS(db, function{
+            console.log("sms processed and counted")
+            db.close()
+            res.redirect('/')
+          })
         })//mongoconnect
     })//parseString
 })
@@ -357,4 +347,40 @@ var sendPollSMS = function(text, yes, no, callback){
     currentMessage=JSON.parse(body2).message_id
     callback(currentMessage)
     })
+}
+
+var processInboundSMS = function (db,callback){
+  var col=db.collection('polls')
+  col.find({status:'active'}).toArray(function(err,actRes){
+    if(actRes){
+      element=actRes[0]
+      if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
+        console.log("yes received")
+        var votes=db.collection('votes')
+        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+          assert.equal(null, err);
+          assert.equal(1, r.insertedCount);
+          callback()
+        })//col.insertOne
+      }//if includes
+      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
+        console.log("no received")
+        var votes=db.collection('votes')
+        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1}, function(err, r) {
+          assert.equal(null, err);
+          assert.equal(1, r.insertedCount);
+          callback()
+        })//col.insertOne
+      }//elseif includes NO
+      else (json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
+        console.log("question")
+        var votes=db.collection('questions')
+        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.COMMENTS}, function(err, r) {
+          assert.equal(null, err);
+          assert.equal(1, r.insertedCount);
+          callback()
+        })//col.insertOne
+      }//elseif includes NO
+    }//if(actRes)
+  })//find active
 }
