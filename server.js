@@ -209,6 +209,8 @@ var savePoll = function(db, req, callback) {
 
 var loadQuestions = function(db, callback){
   questions=[]
+  approved=[]
+  disapproved=[]
   var col=db.collection('questions')
   col.find({status:'new'}).toArray(function(err,res){
     questions=res
