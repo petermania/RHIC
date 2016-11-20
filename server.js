@@ -352,13 +352,13 @@ var sendPollSMS = function(text, yes, no, callback){
 var processInboundSMS = function (db,json,callback){
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
-    if(actRes){
+    if(actRes.length>0){
       element=actRes[0]
       if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
         console.log("yes received")
         var votes=db.collection('votes')
-        votes.find({phonenumber:json.TRUMPIA.PHONENUMBER}).toArray(function(err,res){
-          if(res.length<1){
+        votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
+          if(res.length==0){
             votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
               assert.equal(null, err);
               assert.equal(1, r.insertedCount);
