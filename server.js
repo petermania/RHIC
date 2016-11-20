@@ -372,7 +372,7 @@ var processInboundSMS = function (db,callback){
           callback()
         })//col.insertOne
       }//elseif includes NO
-      else (json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
+      else {
         console.log("question")
         var votes=db.collection('questions')
         votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.COMMENTS}, function(err, r) {
