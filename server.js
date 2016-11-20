@@ -115,7 +115,7 @@ app.get('/inbound', function (req, res) {
           var col=db.collection('polls')
           col.find({status:'active'}).toArray(function(err,actRes){
             if(actRes){
-              if(json.TRUMPIA.CONTENTS.includes(actRes[0].yes_text)){
+              if(json.TRUMPIA.CONTENTS.toLowerCase().includes(actRes[0].yes_text.toLowerCase())){
                 console.log("yes received")
                 col.updateOne({poll_id:parseInt(actRes[0].query.poll_id)},
                   {$set: {yes_vote:actRes[0].yes_vote++}},
