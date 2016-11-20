@@ -1,0 +1,14 @@
+include partials/header
+div.container
+    h1 Questions
+      table.table.table-bordered
+        thead
+          tr
+            td Question
+            td Preview
+            td Present
+            td Launch
+        tbody
+          each result in questions
+            tr.active
+              td #{result.question}

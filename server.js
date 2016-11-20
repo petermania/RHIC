@@ -23,6 +23,7 @@ var active = []
 var inactive = []
 var used = []
 var pending = []
+var questions = []
 var current
 
 var setCurrentPoll = function() {
@@ -123,7 +124,17 @@ app.get('/inbound', function (req, res) {
 
 app.get('/questions', function(req,res){
     console.log("loading questions page")
-    // console.log(req)
+    console.log("Attempting Connect to db")
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err);
+      console.log("Connected successfully to db server to load questions page");
+      loadQuestions(db, function() {
+        console.log('finished loading data')
+        db.close()
+        console.log('db closed')
+        res.render('questions',{questions : questions, title : 'PEDG SMS System – Questions'})
+      })
+    })
 })
 
 app.get('/org',function (req,res){
@@ -192,6 +203,14 @@ var savePoll = function(db, req, callback) {
       // assert.equal(1, r.upsertedCount);
       callback()
   });
+}
+
+var loadQuestions = function(db, callback){
+  questions=[]
+  var col=db.collection('questions')
+  col.find().toArray(function(err,res){
+    questions=res
+  })
 }
 
 var loadPolls = function(db, callback) {
