@@ -357,11 +357,19 @@ var processInboundSMS = function (db,json,callback){
       if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
         console.log("yes received")
         var votes=db.collection('votes')
-        votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
-          assert.equal(null, err);
-          assert.equal(1, r.insertedCount);
-          callback()
-        })//col.insertOne
+        votes.find({phonenumber:json.TRUMPIA.PHONENUMBER}).toArray(function(err,res){
+          if(res.length<1){
+            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+              assert.equal(null, err);
+              assert.equal(1, r.insertedCount);
+              callback()
+            })//votes.insert
+          }//if not present
+          else{
+            console.log("duplicate vote, not counted")
+            callback()
+          }
+        })//votes.find
       }//if includes
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.yes_text.toLowerCase())){
         console.log("no received")
