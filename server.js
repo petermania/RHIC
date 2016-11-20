@@ -112,7 +112,7 @@ app.get('/inbound', function (req, res) {
         MongoClient.connect(url, function(err, db) {
           assert.equal(null, err)
           console.log("Connected successfully to db server")
-          processInboundSMS(db, function(){
+          processInboundSMS(db, json, function(){
             console.log("sms processed and counted")
             db.close()
             res.redirect('/')
@@ -349,7 +349,7 @@ var sendPollSMS = function(text, yes, no, callback){
     })
 }
 
-var processInboundSMS = function (db,callback){
+var processInboundSMS = function (db,json,callback){
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes){
