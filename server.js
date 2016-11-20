@@ -124,7 +124,7 @@ app.get('/inbound', function (req, res) {
                   function(err, r) {
                     assert.equal(null, err);
                     console.log(r.matchedCount)
-                    callback()
+                    res.redirect('/')
                 })//update
               }//if includes
             }//if(actRes)
