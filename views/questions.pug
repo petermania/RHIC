@@ -1,41 +1,89 @@
 include partials/header
 div.container
-    h1 Approved Questions
-    table.table.table-bordered
-      thead
-        tr
-          td Question
-          td Disapprove
-      tbody
-        each result in approved
-          tr.active
-            td #{result.question}
-    h1 Pending Questions
-    table.table.table-bordered
-      thead
-        tr
-          td Question
-          td Approve
-          td Disapprove
-    each result in questions
-      form.form-horizontal(action="/trigger-poll", method="get")
+  div.panel.panel-success
+    div.panel-heading
+      div.row
+        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Approved Questions
+        form(action="/export-csv", method="get")
+          button.btn.btn-large.btn-success(type="submit", style={'margin-top':'14px','margin-right':'10px','float':'right'}) Export CSV
+    div.panel-body
+      form.form-horizontal
         div.form-group.form-group-lg
           div.col-xs-2.col-md-1
-            input.form-control(type="text", name="order", value=result.order)
+            label Order
           div.col-xs-6
-            input.form-control(type="text", name="poll_text", value=result.question)
-          input.form-control.hidden(type="text", name="poll_id", value=result.question_id)
+            label Question
           div.col-xs-2.col-md-1
-            button.btn.btn-large.btn-primary(name="trigger", type="submit", value="approve") Disapprove
+            label Save
+          div.col-xs-2.col-md-2
+            label Disapprove
+      each result in approved
+        form.form-horizontal(action="/save-question", method="get")
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", value=result.order)
+            div.col-xs-6
+              input.form-control(type="text", name="question", value=result.question)
+            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
+            div.col-xs-2.col-md-2
+              button.btn.btn-large.btn-danger(name="question_action", type="submit", value="disapprove") Disapprove
+  div.panel.panel-info
+    div.panel-heading
+      div.row
+        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Pending Questions
+    div.panel-body
+      form.form-horizontal
+        div.form-group.form-group-lg
           div.col-xs-2.col-md-1
-            button.btn.btn-large.btn-primary(name="trigger", value="disapprove", type="submit",style={'background':'green','border-color':'green'}) Approve
-    h1 Disapproved Questions
-    table.table.table-bordered
-      thead
-        tr
-          td Question
-          td Approve
-      tbody
-        each result in disapproved
-          tr.active
-            td #{result.question}
+            label Order
+          div.col-xs-6
+            label Question
+          div.col-xs-2.col-md-1
+            label Save
+          div.col-xs-2.col-md-1
+            label Approve
+          div.col-xs-2.col-md-2
+            label Disapprove
+      each result in questions
+        form.form-horizontal(action="/save-question", method="get")
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", value=result.order)
+            div.col-xs-6
+              input.form-control(type="text", name="question", value=result.question)
+            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-success(name="question_action", value="approve", type="submit",style={'background':'green','border-color':'green'}) Approve
+            div.col-xs-2.col-md-2
+              button.btn.btn-large.btn-warning(name="question_action", type="submit", value="disapprove") Disapprove
+  div.panel.panel-danger
+    div.panel-heading
+      div.row
+        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Disapproved Questions
+    div.panel-body
+      form.form-horizontal
+        div.form-group.form-group-lg
+          div.col-xs-2.col-md-1
+            label Order
+          div.col-xs-6
+            label Question
+          div.col-xs-2.col-md-1
+            label Save
+          div.col-xs-2.col-md-1
+            label Approve
+      each result in disapproved
+        form.form-horizontal(action="/save-question", method="get")
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", value=result.order)
+            div.col-xs-6
+              input.form-control(type="text", name="question", value=result.question)
+            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
+            div.col-xs-2.col-md-1
+              button.btn.btn-large.btn-success(name="question_action", value="approve", type="submit") Approve

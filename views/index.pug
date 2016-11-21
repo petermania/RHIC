@@ -1,95 +1,103 @@
 include partials/header
 div.container
   if (active.length>0)
-    h1 Active Poll
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Preview
-            td Present
-            td Launch
-        tbody
-          each result in active
-            tr.active
-              td #{result.poll_text}
-              td
-                button.btn.btn-large.btn-primary(type="submit") Preview
-              td
-                button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
-              td
-                button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Poll
+    div.panel.panel-success
+      div.panel-heading
+        div.row
+          h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Active Polls
+      div.panel-body
+        form.form-horizontal
+          div.form-group.form-group-lg
+            div.col-xs-6
+              label Question
+            div.col-xs-2.col-md-2
+              label Preview
+            div.col-xs-2.col-md-2
+              label Present
+            div.col-xs-2.col-md-2
+              label End
+        each result in active
+          form.form-horizontal(action="/save-active", method="get")
+            div.form-group.form-group-lg
+              div.col-xs-6
+                p #{result.poll_text}
+              input.form-control.hidden(type="text", name="poll_id", value=result.poll_id)
+              div.col-xs-2.col-md-2
+                button.btn.btn-large.btn-primary(name="save-active", type="submit", value="preview") Preview
+              div.col-xs-2.col-md-2
+                button.btn.btn-large.btn-success(name="save-active", value="present") Present
+              div.col-xs-2.col-md-2
+                button.btn.btn-large.btn-danger(name="save-active", value="end") End
   if (pending.length>0)
-    h1 Pending Poll
-      table.table.table-bordered
-        thead
-          tr
-            td Question
-            td Preview
-            td Present
-            td Launch
-        tbody
-          each result in pending
-            tr.danger
-              td #{result.poll_text}
-              td
-                button.btn.btn-large.btn-primary(type="submit") Preview
-              td
-                button.btn.btn-large.btn-primary(type="submit", style={'background':'green'}) Present
-              td
-                button.btn.btn-large.btn-primary(type="submit", style={'background':'red'}) End Poll
-
-  h1 Draft Polls
-  button.btn.btn-large.btn-primary(type="button", data-toggle="collapse", data-target="#newPoll", aria-expanded="false", aria-controls="newPoll",style={'margin-bottom':'14px'}) Create New
-  div.collapse#newPoll
-    form(action="/add-poll", method="get")
-      div.form-group.row
-        label.col-xs-3.col-md-2.col-form-label(for='question_text') Text (limit 110 char)
-        div.col-xs-8.col-md-10
-          input.form-control(type="text", name="poll_text", placeholder='Question Text', id='question_text')
-      div.form-group.row
-        label.col-xs-2.col-md-1.col-form-label Order
-        div.col-xs-2.col-md-1
-          input.form-control(type="text", name="order", placeholder='Order')
-        label.col-xs-2.col-md-1.col-form-label Yes Txt
-        div.col-xs-2.col-md-1
-          input.form-control(type="text", name="yes_text", placeholder='Yes')
-        label.col-xs-2.col-md-1.col-form-label No Txt
-        div.col-xs-2.col-md-1
-          input.form-control(type="text", name="no_text", placeholder='No')
-        div.col-xs-3.col-md-2
-          button.btn.btn-large.btn-primary.form-control(type="submit") Save
-  if (inactive.length>0)
-    form.form-horizontal
-      div.form-group.form-group-lg
-        div.col-xs-2.col-md-1
-          label Order
-        div.col-xs-6
-          label Text
-        div.col-xs-2.col-md-1
-          label Yes Txt
-        div.col-xs-2.col-md-1
-          label No Txt
-        div.col-xs-2.col-md-1
-          label Save
-        div.col-xs-2.col-md-1
-          label Launch
-    each result in inactive
-      form.form-horizontal(action="/trigger-poll", method="get")
-        div.form-group.form-group-lg
-          div.col-xs-2.col-md-1
-            input.form-control(type="text", name="order", value=result.order)
-          div.col-xs-6
-            input.form-control(type="text", name="poll_text", value=result.poll_text)
-          div.col-xs-2.col-md-1
-            input.form-control(type="text", name="yes_text", value=result.yes_text)
-          div.col-xs-2.col-md-1
-            input.form-control(type="text", name="no_text", value=result.no_text)
-          input.form-control.hidden(type="text", name="poll_id", value=result.poll_id)
-          div.col-xs-2.col-md-1
-            button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
-          div.col-xs-2.col-md-1
-            button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
+    div.panel.panel-danger
+      div.panel-heading
+        div.row
+          h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Pending Poll
+      div.panel-body
+        form.form-horizontal
+          div.form-group.form-group-lg
+            div.col-xs-6
+              label Question
+        each result in pending
+          form.form-horizontal
+            div.form-group.form-group-lg
+              div.col-xs-6
+                p #{result.poll_text}
+  div.panel.panel-info
+    div.panel-heading
+      div.row
+        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Draft Polls
+        button.btn.btn-large.btn-default(type="button", data-toggle="collapse", data-target="#newPoll", aria-expanded="false", aria-controls="newPoll" style={'margin-top':'14px','margin-right':'10px','float':'right'}) Create New
+    div.panel-body
+      div.collapse#newPoll
+        form(action="/add-poll", method="get")
+          div.form-group.row
+            label.col-xs-3.col-md-2.col-form-label(for='question_text') Text (limit 110 char)
+            div.col-xs-8.col-md-10
+              input.form-control(type="text", name="poll_text", placeholder='Question Text', id='question_text')
+          div.form-group.row
+            label.col-xs-2.col-md-1.col-form-label Order
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="order", placeholder='Order')
+            label.col-xs-2.col-md-1.col-form-label Yes Txt
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="yes_text", placeholder='Yes')
+            label.col-xs-2.col-md-1.col-form-label No Txt
+            div.col-xs-2.col-md-1
+              input.form-control(type="text", name="no_text", placeholder='No')
+            div.col-xs-3.col-md-2
+              button.btn.btn-large.btn-primary.form-control(type="submit") Save
+      if (inactive.length>0)
+        form.form-horizontal
+          div.form-group.form-group-lg
+            div.col-xs-2.col-md-1
+              label Order
+            div.col-xs-6
+              label Text
+            div.col-xs-2.col-md-1
+              label Yes Txt
+            div.col-xs-2.col-md-1
+              label No Txt
+            div.col-xs-2.col-md-1
+              label Save
+            div.col-xs-2.col-md-1
+              label Launch
+        each result in inactive
+          form.form-horizontal(action="/trigger-poll", method="get")
+            div.form-group.form-group-lg
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="order", value=result.order)
+              div.col-xs-6
+                input.form-control(type="text", name="poll_text", value=result.poll_text)
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="yes_text", value=result.yes_text)
+              div.col-xs-2.col-md-1
+                input.form-control(type="text", name="no_text", value=result.no_text)
+              input.form-control.hidden(type="text", name="poll_id", value=result.poll_id)
+              div.col-xs-2.col-md-1
+                button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
+              div.col-xs-2.col-md-1
+                button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
   h1 Previous Polls
   if(used.length>0)
     table.table.table-bordered

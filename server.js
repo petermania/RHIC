@@ -5,6 +5,7 @@ var MongoClient = require('mongodb').MongoClient
 var assert = require('assert')
 var bodyParser = require('body-parser');
 var request=require('request')
+var json2csv = require('json2csv')
 
 var xml2js = require('xml2js')
 var fs = require("fs")
@@ -78,6 +79,31 @@ app.get('/add-poll', function (req, res) {
   });
 });
 
+app.get('/save-question', function (req, res) {
+  if(req.query.question_action=='save'){
+    console.log('saving question')
+    // Use connect method to connect to the server
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err);
+      console.log("Connected successfully to db server");
+      saveQuestion(db, req, function() {
+        db.close();
+        res.redirect('/questions')
+      });
+    });
+  }
+  else{
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err);
+      console.log("Connected successfully to db server");
+      setQuestionStatus(db, req, function() {
+        db.close();
+        res.redirect('/questions')
+      });
+    });
+  }
+});
+
 app.get('/trigger-poll', function (req, res) {
   if(req.query.trigger=='save'){
     // Use connect method to connect to the server
@@ -139,6 +165,17 @@ app.get('/questions', function(req,res){
     })
 })
 
+app.get('/export-csv',function(req,res){
+  var fields=['order','question']
+  var csv = json2csv({ data: approved, fields: fields })
+  var time=Date.now()
+  fs.writeFile(__dirname+'/exports/'+time+'_export.csv', csv, function(err) {
+    if (err) throw err
+      console.log('file saved')
+    var file = __dirname + '/exports/'+time+'_export.csv';
+    res.download(file)
+  })
+})
 app.get('/org',function (req,res){
   var options = {
     uri: 'http://api.trumpia.com/rest/v1/PEDG2016/orgname',
@@ -212,11 +249,11 @@ var loadQuestions = function(db, callback){
   approved=[]
   disapproved=[]
   var col=db.collection('questions')
-  col.find({status:'new'}).toArray(function(err,res){
+  col.find({status:'new'}).sort( { order: 1 }).toArray(function(err,res){
     questions=res
-    col.find({status:'approved'}).toArray(function(err,resApp){
+    col.find({status:'approve'}).sort( { order: 1 }).toArray(function(err,resApp){
       approved=resApp
-      col.find({status:'disapproved'}).toArray(function(err,resDis){
+      col.find({status:'disapprove'}).sort( { order: 1 }).toArray(function(err,resDis){
         disapproved=resDis
         callback()
       })
@@ -421,7 +458,7 @@ var processInboundSMS = function (db,json,callback){
       else {
         console.log("question")
         var votes=db.collection('questions')
-        votes.insertOne({'poll_id' : element.poll_id, 'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
+        votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
           assert.equal(null, err);
           assert.equal(1, r.insertedCount);
           callback()
@@ -429,4 +466,48 @@ var processInboundSMS = function (db,json,callback){
       }//elseif includes NO
     }//if(actRes)
   })//find active
+}
+
+var saveQuestion = function(db, req, callback){
+  var col=db.collection('questions')
+  console.log(req.query.question_id)
+  col.updateOne({question_id:parseInt(req.query.question_id)},
+    {$set: {question:req.query.question, order:parseInt(req.query.order)}},
+    {upsert:false},
+    function(err, r) {
+      assert.equal(null, err);
+      console.log("matched: "+r.matchedCount)
+      // assert.equal(1, r.matchedCount);
+      // assert.equal(1, r.upsertedCount);
+      callback()
+  })
+}
+
+
+var setQuestionStatus = function(db, req, callback){
+  var col=db.collection('questions')
+  if(req.query.question_action=='disapprove'){
+    col.updateOne({question_id:parseInt(req.query.question_id)},
+      {$set: {status:'disapprove', order:parseInt(req.query.order)}},
+      {upsert:false},
+      function(err, r) {
+        assert.equal(null, err);
+        console.log(r.matchedCount)
+        // assert.equal(1, r.matchedCount);
+        // assert.equal(1, r.upsertedCount);
+        callback()
+    })
+  }
+  else if(req.query.question_action=='approve'){
+    col.updateOne({question_id:parseInt(req.query.question_id)},
+      {$set: {status:'approve', order:parseInt(req.query.order)}},
+      {upsert:false},
+      function(err, r) {
+        assert.equal(null, err);
+        console.log(r.matchedCount)
+        // assert.equal(1, r.matchedCount);
+        // assert.equal(1, r.upsertedCount);
+        callback()
+    })
+  }
 }
