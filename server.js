@@ -3,19 +3,22 @@ var app = express()
 var http=require('http')
 var MongoClient = require('mongodb').MongoClient
 var assert = require('assert')
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser')
 var request=require('request')
 var json2csv = require('json2csv')
+var io = require('socket.io').listen(http)
+var path = require ('path')
 
 var xml2js = require('xml2js')
 var fs = require("fs")
 
-var currentMessage;
+var currentMessage
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'pug')
+
 
 // Connection URL
 var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC';
@@ -60,6 +63,36 @@ app.get('/', function (req, res) {
       db.close()
       console.log('db closed')
       res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
+    })
+  })
+})
+
+app.get('/questions', function(req,res){
+    console.log("loading questions page")
+    console.log("Attempting Connect to db")
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err);
+      console.log("Connected successfully to db server to load questions page");
+      loadQuestions(db, function() {
+        console.log('finished loading data')
+        db.close()
+        console.log('db closed')
+        res.render('questions',{questions : questions, approved:approved, disapproved:disapproved, title : 'PEDG SMS System – Questions'})
+      })
+    })
+})
+
+app.get('/viewer',function(req,res){
+  console.log("loading questions page")
+  console.log("Attempting Connect to db")
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    console.log("Connected successfully to db server to load questions page");
+    loadVotes(db, function(yesVotes, noVotes) {
+      console.log('finished loading data')
+      db.close()
+      console.log('db closed')
+      res.render('viewer',{yes_votes : yesVotes, no_votes:noVotes, title : 'RHIC Viewer'})
     })
   })
 })
@@ -150,21 +183,6 @@ app.get('/inbound', function (req, res) {
     })//parseString
 })
 
-app.get('/questions', function(req,res){
-    console.log("loading questions page")
-    console.log("Attempting Connect to db")
-    MongoClient.connect(url, function(err, db) {
-      assert.equal(null, err);
-      console.log("Connected successfully to db server to load questions page");
-      loadQuestions(db, function() {
-        console.log('finished loading data')
-        db.close()
-        console.log('db closed')
-        res.render('questions',{questions : questions, approved:approved, disapproved:disapproved, title : 'PEDG SMS System – Questions'})
-      })
-    })
-})
-
 app.get('/export-csv',function(req,res){
   var fields=['order','question']
   var csv = json2csv({ data: approved, fields: fields })
@@ -176,6 +194,7 @@ app.get('/export-csv',function(req,res){
     res.download(file)
   })
 })
+
 app.get('/org',function (req,res){
   var options = {
     uri: 'http://api.trumpia.com/rest/v1/PEDG2016/orgname',
@@ -483,7 +502,6 @@ var saveQuestion = function(db, req, callback){
   })
 }
 
-
 var setQuestionStatus = function(db, req, callback){
   var col=db.collection('questions')
   if(req.query.question_action=='disapprove'){
@@ -510,4 +528,16 @@ var setQuestionStatus = function(db, req, callback){
         callback()
     })
   }
+}
+
+var loadVotes = function(db, callback){
+  var col=db.collection('votes')
+  var yes, no
+  col.find({poll_id:current,vote:1}).toArray(function(err,res){
+    yes=res.length
+    col.find({poll_id:current,vote:0}).toArray(function(err2, res2){
+        no=res2.length
+        callback(yes,no)
+    })
+  })
 }

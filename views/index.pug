@@ -98,16 +98,18 @@ div.container
                 button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
               div.col-xs-2.col-md-1
                 button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
-  h1 Previous Polls
   if(used.length>0)
-    table.table.table-bordered
-      thead
-        tr
-          td Order
-          td Question
-      tbody
+    div.panel.panel-default
+      div.panel-heading
+        div.row
+          h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Previous Polls
+      div.panel-body
+        form.form-horizontal
+          div.form-group.form-group-lg
+            div.col-xs-10
+              label Question
         each result in used
-          tr.active
-            td
-              input.input-block-level(type="text", name="order", placeholder=result.order)
-            td #{result.poll_text}
+          form.form-horizontal
+            div.form-group.form-group-lg
+              div.col-xs-10
+                p #{result.poll_text}

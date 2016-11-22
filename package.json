@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "chartjs": "^0.3.24",
     "express": "^4.14.0",
     "forms": "^1.2.0",
     "json2csv": "^3.7.1",
