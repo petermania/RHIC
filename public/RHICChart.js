@@ -9,7 +9,7 @@ window.chartOptions = {
   title:{
     display:true,
     fontFamily:"TradeGothic",
-    text:name,
+    text:name.toUpperCase(),
     fontSize:60
   },
   legend:{
@@ -31,19 +31,19 @@ var chartUpdate = function(value) {
   var labels=[]
   input.push(vote1)
   colors.push("#BDE724")
-  labels.push(text1)
+  labels.push(text1.toUpperCase())
   input.push(vote2)
   colors.push("#005985")
-  labels.push(text2)
+  labels.push(text2.toUpperCase())
   if(response_no>2){
     input.push(vote3)
-    colors.push("#BDE724")
-    labels.push(text3)
+    colors.push("#D2D2D2")
+    labels.push(text3.toUpperCase())
   }
   if(response_no>3){
     input.push(vote4)
     colors.push("#005985")
-    labels.push(text4)
+    labels.push(text4.toUpperCase())
   }
 
   var data = {
