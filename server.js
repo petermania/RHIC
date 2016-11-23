@@ -429,7 +429,7 @@ var processInboundSMS = function (db,json,callback){
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes.length>0){
       element=actRes[0]
-      console.log(json.TRUMPIA.KEYWORD)
+      console.log("found: "+json.TRUMPIA.KEYWORD)
       if(json.TRUMPIA.KEYWORD=='RHIC') {
         console.log("found question")
         var votes=db.collection('questions')
