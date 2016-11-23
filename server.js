@@ -427,18 +427,17 @@ var sendPollSMS = function(req, callback){
 var processInboundSMS = function (db,json,callback){
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
-    if(actRes.length>0){
-      element=actRes[0]
+    if(json.TRUMPIA.KEYWORD=='RHIC') {
       console.log("found: "+json.TRUMPIA.KEYWORD)
-      if(json.TRUMPIA.KEYWORD=='RHIC') {
-        console.log("found question")
-        var votes=db.collection('questions')
-        votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
-          assert.equal(null, err)
-          assert.equal(1, r.insertedCount)
-          callback()
-        })//col.insertOne
-      }//else
+      var votes=db.collection('questions')
+      votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
+        assert.equal(null, err)
+        assert.equal(1, r.insertedCount)
+        callback()
+      })//col.insertOne
+    }//else
+    else if(actRes.length>0){
+      element=actRes[0]
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text1.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
         console.log("vote option one received")
         var votes=db.collection('votes')
