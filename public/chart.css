@@ -1,0 +1,10 @@
+@font-face {
+    font-family: "TradeGothic";
+    src: url(/TG.ttf) format("truetype");
+}
+
+#chart {
+    margin:auto;
+    width:auto !important
+    height:100% !important
+}
