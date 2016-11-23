@@ -30,9 +30,6 @@ div.container
                   div.input-group
                     span.input-group-addon Res. 4
                     input(type="text", class="form-control text4",value=result.text4, 'aria-describedby'="basic-addon1", name='text4', readonly)
-              div.btn-group(role="group")
-                button.btn.btn-warning(name="save-active", type="submit", value="preview") View
-                button.btn.btn-danger(name="save-active", value="end") End
               input.form-control(type="text", name="poll_id", value=result.poll_id, style={'display':'none'})
 
   if (pending.length>0)
@@ -138,8 +135,6 @@ div.container
                 div.input-group
                   span.input-group-addon Poll
                   input(type="text", class="form-control", value=result.poll_text, 'aria-describedby'="basic-addon1",readonly)
-              div.col-xs-1
-                button.btn.btn-warning(name="save-active", type="submit", value="preview") View
             div.form-group.row
               div.col-xs-3
                 div.input-group
@@ -159,4 +154,4 @@ div.container
                   div.input-group
                     span.input-group-addon #{result.text4}
                     input(type="text", class="form-control text4",value=result.vote4, 'aria-describedby'="basic-addon1", name='text4', readonly)
-script(src="/RHICChart.js")
+script(src="/index.js")

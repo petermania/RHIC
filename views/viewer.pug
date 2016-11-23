@@ -1,7 +1,23 @@
-include partials/header
-div
-  canvas(id="chart",height="300",width="300")
-script(type="text/javascript").
-  var yes=#{yes_votes}
-  var no=#{no_votes}
-script(src="/RHICChart.js")
+html
+  head
+    title=title
+    script(src="https://code.jquery.com/jquery-3.1.1.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js")
+    script(src="/js/tether.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js")
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css", rel='stylesheet', type="text/css")
+    link(href="chart.css",rel='stylesheet',type='text/css')
+  body
+    div.container
+      canvas(id="chart",height="300",width="300")
+    script(type="text/javascript").
+      var vote1=#{vote1}
+      var vote2=#{vote2}
+      var vote3=#{vote3}
+      var vote4=#{vote4}
+      var text1='#{text1}'
+      var text2='#{text2}'
+      var text3='#{text3}'
+      var text4='#{text4}'
+      var response_no=#{response_no}
+    script(src="/RHICChart.js")
