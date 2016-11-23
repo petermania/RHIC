@@ -269,7 +269,7 @@ var loadPolls = function(db, callback) {
       if(pendRes.length>0) {
         pending=pendRes
         console.log(pending.length+" pending results")
-        for(var i=0, len=pending.lengthi<leni++){
+        for(var i=0, len=pending.length;i<len;i++){
           element=pending[i]
           var options = {
             uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
