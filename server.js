@@ -14,14 +14,14 @@ var fs = require("fs")
 
 var currentMessage
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.static(__dirname + '/public'))
 app.set('view engine', 'pug')
 
 
 // Connection URL
-var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC';
+var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:27017/RHIC'
 
 var active = []
 var inactive = []
@@ -34,7 +34,7 @@ var current
 
 var setCurrentPoll = function() {
   MongoClient.connect(url, function(err, db) {
-    console.log("Connected successfully to db server to set current poll");
+    console.log("Connected successfully to db server to set current poll")
     assert.equal(null, err)
     var col=db.collection('polls')
     col.find({status:'active'}).toArray(function(err,actRes){
@@ -56,8 +56,8 @@ setCurrentPoll()
 app.get('/', function (req, res) {
   console.log("Attempting Initial Connect to db")
   MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected successfully to db server to load page");
+    assert.equal(null, err)
+    console.log("Connected successfully to db server to load page")
     loadPolls(db, function() {
       console.log('finished loading data')
       db.close()
@@ -71,8 +71,8 @@ app.get('/questions', function(req,res){
     console.log("loading questions page")
     console.log("Attempting Connect to db")
     MongoClient.connect(url, function(err, db) {
-      assert.equal(null, err);
-      console.log("Connected successfully to db server to load questions page");
+      assert.equal(null, err)
+      console.log("Connected successfully to db server to load questions page")
       loadQuestions(db, function() {
         console.log('finished loading data')
         db.close()
@@ -86,8 +86,8 @@ app.get('/viewer',function(req,res){
   console.log("loading questions page")
   console.log("Attempting Connect to db")
   MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected successfully to db server to load questions page");
+    assert.equal(null, err)
+    console.log("Connected successfully to db server to load questions page")
     loadVotes(db, function(yesVotes, noVotes) {
       console.log('finished loading data')
       db.close()
@@ -102,40 +102,40 @@ app.get('/add-poll', function (req, res) {
   console.log(req.query.order)
   // Use connect method to connect to the server
   MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    console.log("Connected successfully to db server");
+    assert.equal(null, err)
+    console.log("Connected successfully to db server")
     insertPoll(db, req, function() {
       console.log('reload')
-      db.close();
+      db.close()
       res.redirect('/')
-    });
-  });
-});
+    })
+  })
+})
 
 app.get('/save-question', function (req, res) {
   if(req.query.question_action=='save'){
     console.log('saving question')
     // Use connect method to connect to the server
     MongoClient.connect(url, function(err, db) {
-      assert.equal(null, err);
-      console.log("Connected successfully to db server");
+      assert.equal(null, err)
+      console.log("Connected successfully to db server")
       saveQuestion(db, req, function() {
-        db.close();
+        db.close()
         res.redirect('/questions')
-      });
-    });
+      })
+    })
   }
   else{
     MongoClient.connect(url, function(err, db) {
-      assert.equal(null, err);
-      console.log("Connected successfully to db server");
+      assert.equal(null, err)
+      console.log("Connected successfully to db server")
       setQuestionStatus(db, req, function() {
-        db.close();
+        db.close()
         res.redirect('/questions')
-      });
-    });
+      })
+    })
   }
-});
+})
 
 app.get('/trigger-poll', function (req, res) {
   if(req.query.trigger=='save'){
@@ -160,22 +160,21 @@ app.get('/trigger-poll', function (req, res) {
         db.close()
         res.redirect('/')
       })
-    });
+    })
   }
-});
+})
 
 app.get('/inbound', function (req, res) {
       xml2js.parseString(req.query.xml, { explicitArray : false, ignoreAttrs : true, trim : true }, function (err, result) {
-        console.log("inbound:")
+        console.log("inbound message:")
         var results = JSON.stringify(result)
         console.log(results)
         var json = JSON.parse(results)
-        console.log(json.TRUMPIA.CONTENTS)
         MongoClient.connect(url, function(err, db) {
           assert.equal(null, err)
-          console.log("Connected successfully to db server")
+          console.log("Connected successfully to db server to process SMS")
           processInboundSMS(db, json, function(){
-            console.log("sms processed and counted")
+            console.log("SMS processed and counted")
             db.close()
             res.redirect('/')
           })
@@ -189,8 +188,8 @@ app.get('/export-csv',function(req,res){
   var time=Date.now()
   fs.writeFile(__dirname+'/exports/'+time+'_export.csv', csv, function(err) {
     if (err) throw err
-      console.log('file saved')
-    var file = __dirname + '/exports/'+time+'_export.csv';
+      console.log('CSV file saved')
+    var file = __dirname + '/exports/'+time+'_export.csv'
     res.download(file)
   })
 })
@@ -207,9 +206,8 @@ app.get('/org',function (req,res){
 
   request(options,function (err, httpResponse, body2) {
     if (err) {
-      return console.error('message send failed:', err)
+      return console.error('SMS message send failed:', err)
     }
-      console.log(body2)
   })
 
 })
@@ -229,9 +227,7 @@ app.get('/check',function(req,res){
     if (err) {
       return console.error('message send failed:', err)
     }
-      console.log(body2)
-
-    })
+  })
 })
 
 app.listen(8080, function () {
@@ -242,26 +238,22 @@ var insertPoll = function(db, req, callback) {
   var col = db.collection('polls')
   var responses
   col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','response_no':req.query.response_no,'text1':req.query.text1,'text2':req.query.text2,'text3':req.query.text3,'text4':req.query.text4, 'vote1':0, 'vote2':0,'vote3':0,'vote4':0}, function(err, r) {
-    assert.equal(null, err);
-    assert.equal(1, r.insertedCount);
+    assert.equal(null, err)
+    assert.equal(1, r.insertedCount)
     callback()
-  });
+  })
 }
 
 var savePoll = function(db, req, callback) {
-  console.log('updating')
+  console.log('updating poll '+req.query.poll_id)
   var col = db.collection('polls')
-  console.log(req.query.poll_id)
   col.updateOne({poll_id:parseInt(req.query.poll_id)},
     {$set: {poll_text:req.query.poll_text, order:parseInt(req.query.order), 'text1':req.query.text1,'text2':req.query.text2,'text3':req.query.text3,'text4':req.query.text4}},
     {upsert:false},
     function(err, r) {
-      assert.equal(null, err);
-      console.log(r.matchedCount)
-      // assert.equal(1, r.matchedCount);
-      // assert.equal(1, r.upsertedCount);
+      assert.equal(null, err)
       callback()
-  });
+  })
 }
 
 var loadPolls = function(db, callback) {
@@ -277,9 +269,8 @@ var loadPolls = function(db, callback) {
       if(pendRes.length>0) {
         pending=pendRes
         console.log(pending.length+" pending results")
-        for(var i=0, len=pending.length;i<len;i++){
+        for(var i=0, len=pending.lengthi<leni++){
           element=pending[i]
-          // console.log(element)
           var options = {
             uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
             method: 'GET',
@@ -290,7 +281,6 @@ var loadPolls = function(db, callback) {
           }
 
           request(options,function (err, httpResponse, body2) {
-            console.log(element)
             if (err) {
               return console.error('message send failed:', err)
             }
@@ -360,13 +350,13 @@ var loadPolls = function(db, callback) {
 }
 
 var launchPoll = function(db, req, callback) {
-  console.log('launching')
+  console.log('launching poll')
   var col = db.collection('polls')
   col.updateMany({status:'active'},
     {$set: {status:'used','end_time':Date.now()}},
     {upsert:false},
     function(err, r) {
-      assert.equal(null, err);
+      assert.equal(null, err)
       current=parseInt(req.query.poll_id)
       col.updateOne({poll_id:parseInt(req.query.poll_id)},
         {$set: {status:'pending','launch_time':Date.now()}},
@@ -389,7 +379,6 @@ var launchPoll = function(db, req, callback) {
 
 var sendPollSMS = function(req, callback){
   console.log("prepping text")
-  console.log(req.query.response_no)
 
   if(req.query.response_no=='2') var sms=' '+req.query.poll_text+' Reply with '+req.query.text1.toUpperCase()+' or '+req.query.text2.toUpperCase()+' to vote.'
   else if(req.query.response_no=='3') var sms=' '+req.query.poll_text+' Reply with '+req.query.text1.toUpperCase()+', '+req.query.text2.toUpperCase()+', or '+req.query.text3.toUpperCase()+' to vote.'
@@ -438,8 +427,8 @@ var processInboundSMS = function (db,json,callback){
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
             votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
-              assert.equal(null, err);
-              assert.equal(1, r.insertedCount);
+              assert.equal(null, err)
+              assert.equal(1, r.insertedCount)
               callback()
             })//votes.insert
           }//if not present
@@ -455,8 +444,8 @@ var processInboundSMS = function (db,json,callback){
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
             votes.insertOne({'poll_id' : element.poll_id, 'vote' : 2, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
-              assert.equal(null, err);
-              assert.equal(1, r.insertedCount);
+              assert.equal(null, err)
+              assert.equal(1, r.insertedCount)
               callback()
             })//votes.insert
           }//if not present
@@ -472,8 +461,8 @@ var processInboundSMS = function (db,json,callback){
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
             votes.insertOne({'poll_id' : element.poll_id, 'vote' : 3, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
-              assert.equal(null, err);
-              assert.equal(1, r.insertedCount);
+              assert.equal(null, err)
+              assert.equal(1, r.insertedCount)
               callback()
             })//votes.insert
           }//if not present
@@ -489,8 +478,8 @@ var processInboundSMS = function (db,json,callback){
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
             votes.insertOne({'poll_id' : element.poll_id, 'vote' : 4, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
-              assert.equal(null, err);
-              assert.equal(1, r.insertedCount);
+              assert.equal(null, err)
+              assert.equal(1, r.insertedCount)
               callback()
             })//votes.insert
           }//if not present
@@ -504,8 +493,8 @@ var processInboundSMS = function (db,json,callback){
         console.log("question")
         var votes=db.collection('questions')
         votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
-          assert.equal(null, err);
-          assert.equal(1, r.insertedCount);
+          assert.equal(null, err)
+          assert.equal(1, r.insertedCount)
           callback()
         })//col.insertOne
       }//elseif includes NO
@@ -532,16 +521,14 @@ var loadQuestions = function(db, callback){
 
 var saveQuestion = function(db, req, callback){
   var col=db.collection('questions')
-  console.log(req.query.question_id)
-  console.log(req.query.question)
   col.updateOne({question_id:parseInt(req.query.question_id)},
     {$set: {question:req.query.question, order:parseInt(req.query.order)}},
     {upsert:false},
     function(err, r) {
-      assert.equal(null, err);
+      assert.equal(null, err)
       console.log("matched: "+r.matchedCount)
-      // assert.equal(1, r.matchedCount);
-      // assert.equal(1, r.upsertedCount);
+      // assert.equal(1, r.matchedCount)
+      // assert.equal(1, r.upsertedCount)
       callback()
   })
 }
@@ -553,10 +540,7 @@ var setQuestionStatus = function(db, req, callback){
       {$set: {status:'disapprove', order:parseInt(req.query.order)}},
       {upsert:false},
       function(err, r) {
-        assert.equal(null, err);
-        console.log(r.matchedCount)
-        // assert.equal(1, r.matchedCount);
-        // assert.equal(1, r.upsertedCount);
+        assert.equal(null, err)
         callback()
     })
   }
@@ -565,10 +549,7 @@ var setQuestionStatus = function(db, req, callback){
       {$set: {status:'approve', order:parseInt(req.query.order)}},
       {upsert:false},
       function(err, r) {
-        assert.equal(null, err);
-        console.log(r.matchedCount)
-        // assert.equal(1, r.matchedCount);
-        // assert.equal(1, r.upsertedCount);
+        assert.equal(null, err)
         callback()
     })
   }
