@@ -438,7 +438,7 @@ var processInboundSMS = function (db,json,callback){
     }//else
     else if(actRes.length>0){
       element=actRes[0]
-      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text1.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
+      if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text1.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
         console.log("vote option one received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
