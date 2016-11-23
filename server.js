@@ -87,12 +87,12 @@ app.get('/viewer',function(req,res){
   MongoClient.connect(url, function(err, db) {
     assert.equal(null, err)
     console.log("Connected successfully to db server to load questions page")
-    loadVotes(db, function(vote1, text1, vote2, text2, vote3, text3, vote4, text4, num) {
+    loadVotes(db, function(vote1, text1, vote2, text2, vote3, text3, vote4, text4, name, num) {
       console.log('finished loading data')
       console.log('one: '+vote1+' two: '+vote2+' three: '+vote3+' four: '+vote4)
       db.close()
       console.log('db closed')
-      res.render('viewer',{vote1 : vote1, text1:text1, vote2:vote2, text2:text2, vote3:vote3, text3:text3, vote4:vote4, text4:text4, response_no:num, title : 'RHIC Viewer'})
+      res.render('viewer',{vote1 : vote1, text1:text1, vote2:vote2, text2:text2, vote3:vote3, text3:text3, vote4:vote4, text4:text4, response_no:num, name:name, title : 'RHIC Viewer'})
     })
   })
 })
@@ -579,6 +579,7 @@ var loadVotes = function(db, callback){
     var text1=r[0].text1
     var text2=r[0].text2
     var text3=r[0].text3
+    var name=r[0].poll_text
     console.log("text 3: "+text3)
     if(text3=='') text3='0'
     var text4=r[0].text4
@@ -594,7 +595,7 @@ var loadVotes = function(db, callback){
           three=res3.length
           col.find({poll_id:current,vote:4}).toArray(function(err4, res4){
             four=res4.length
-            callback(one,text1,two,text2,three,text3,four,text4,num)
+            callback(one,text1,two,text2,three,text3,four,text4,name, num)
           })
         })
       })

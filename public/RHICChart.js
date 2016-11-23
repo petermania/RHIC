@@ -9,7 +9,7 @@ window.chartOptions = {
   title:{
     display:true,
     fontFamily:"TradeGothic",
-    text:"Will the Feds Raise the Interest Rate in 2016?",
+    text:name,
     fontSize:60
   },
   legend:{
