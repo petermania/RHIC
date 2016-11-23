@@ -429,8 +429,9 @@ var processInboundSMS = function (db,json,callback){
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes.length>0){
       element=actRes[0]
-      if(json.TRUMPIA.KEYWORD.toLowerCase()=='rhic') {
-        console.log("question")
+      console.log(json.TRUMPIA.KEYWORD)
+      if(json.TRUMPIA.KEYWORD=='RHIC') {
+        console.log("found question")
         var votes=db.collection('questions')
         votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
           assert.equal(null, err)
