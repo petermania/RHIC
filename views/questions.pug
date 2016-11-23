@@ -1,89 +1,64 @@
 include partials/header
 div.container
-  div.panel.panel-success
-    div.panel-heading
-      div.row
-        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Approved Questions
-        form(action="/export-csv", method="get")
-          button.btn.btn-large.btn-success(type="submit", style={'margin-top':'14px','margin-right':'10px','float':'right'}) Export CSV
-    div.panel-body
-      form.form-horizontal
-        div.form-group.form-group-lg
-          div.col-xs-2.col-md-1
-            label Order
-          div.col-xs-6
-            label Question
-          div.col-xs-2.col-md-1
-            label Save
-          div.col-xs-2.col-md-2
-            label Disapprove
-      each result in approved
+  div.card(style={'margin-top':'10px'})
+    form(action="/export-csv", method="get")
+      h3.card-header.card-success Approved Questions
+        button.btn.btn-large.btn-secondary(type="submit", style={'float':'right'}) Export CSV
+    each result in approved
+      div.card-block(style={'border-bottom':'1px solid rgba(0,0,0,.125)'})
         form.form-horizontal(action="/save-question", method="get")
-          div.form-group.form-group-lg
-            div.col-xs-2.col-md-1
-              input.form-control(type="text", name="order", value=result.order)
-            div.col-xs-6
-              input.form-control(type="text", name="question", value=result.question)
-            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
-            div.col-xs-2.col-md-2
-              button.btn.btn-large.btn-danger(name="question_action", type="submit", value="disapprove") Disapprove
-  div.panel.panel-info
-    div.panel-heading
-      div.row
-        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Pending Questions
-    div.panel-body
-      form.form-horizontal
-        div.form-group.form-group-lg
-          div.col-xs-2.col-md-1
-            label Order
-          div.col-xs-6
-            label Question
-          div.col-xs-2.col-md-1
-            label Save
-          div.col-xs-2.col-md-1
-            label Approve
-          div.col-xs-2.col-md-2
-            label Disapprove
-      each result in questions
+          div.form-group.row
+            div.col-xs-2
+              div.input-group
+                span.input-group-addon Order
+                input(type="text", class="form-control", name="order", value=result.order,'aria-describedby'="basic-addon1")
+            div.col-xs-7
+              div.input-group
+                span.input-group-addon Order
+                input.form-control(type="text", name="question", value=result.question, 'aria-describedby'="basic-addon1")
+            input.form-control(type="text", name="question_id", value=result.question_id, style={"display":"none"})
+            dov.col-xs-3
+              div.btn-group(role="group")
+                button.btn.btn-primary(name="question_action", type="submit", value="save") Save
+                  button.btn.btn-danger(name="question_action", type="submit", value="disapprove") Disapprove
+  div.card(style={'margin-top':'10px'})
+    h3.card-header.card-info Pending Questions
+    each result in questions
+      div.card-block(style={'border-bottom':'1px solid rgba(0,0,0,.125)'})
         form.form-horizontal(action="/save-question", method="get")
-          div.form-group.form-group-lg
-            div.col-xs-2.col-md-1
-              input.form-control(type="text", name="order", value=result.order)
-            div.col-xs-6
-              input.form-control(type="text", name="question", value=result.question)
-            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-success(name="question_action", value="approve", type="submit",style={'background':'green','border-color':'green'}) Approve
-            div.col-xs-2.col-md-2
-              button.btn.btn-large.btn-danger(name="question_action", type="submit", value="disapprove") Disapprove
-  div.panel.panel-danger
-    div.panel-heading
-      div.row
-        h3.col-xs-8.col-md-5(style={'padding-bottom':'10px'}) Disapproved Questions
-    div.panel-body
-      form.form-horizontal
-        div.form-group.form-group-lg
-          div.col-xs-2.col-md-1
-            label Order
-          div.col-xs-6
-            label Question
-          div.col-xs-2.col-md-1
-            label Save
-          div.col-xs-2.col-md-1
-            label Approve
-      each result in disapproved
+          div.form-group.row
+            div.col-xs-2
+              div.input-group
+                span.input-group-addon Order
+                input(type="text", class="form-control", name="order", value=result.order,'aria-describedby'="basic-addon1")
+            div.col-xs-10
+              div.input-group
+                span.input-group-addon Question Text
+                input.form-control(type="text", name="question", value=result.question, 'aria-describedby'="basic-addon1")
+            input.form-control(type="text", name="question_id", value=result.question_id, style={'display':'none'})
+          div.form-group.row
+            div.col-xs-4
+              div.btn-group(role="group")
+                  button.btn.btn-primary(name="question_action", type="submit", value="save") Save
+                  button.btn.btn-success(name="question_action", value="approve", type="submit",style={'background':'green','border-color':'green'}) Approve
+                  button.btn.btn-danger(name="question_action", type="submit", value="disapprove") Disapprove
+  div.card(style={'margin-top':'10px'})
+    h3.card-header.card-default Disapproved Questions
+    each result in disapproved
+      div.card-block(style={'border-bottom':'1px solid rgba(0,0,0,.125)'})
         form.form-horizontal(action="/save-question", method="get")
-          div.form-group.form-group-lg
-            div.col-xs-2.col-md-1
-              input.form-control(type="text", name="order", value=result.order)
-            div.col-xs-6
-              input.form-control(type="text", name="question", value=result.question)
-            input.form-control.hidden(type="text", name="question_id", value=result.question_id)
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
-            div.col-xs-2.col-md-1
-              button.btn.btn-large.btn-success(name="question_action", value="approve", type="submit") Approve
+          div.form-group.row
+            div.col-xs-2
+              div.input-group
+                span.input-group-addon Order
+                input.form-control(type="text", name="order", value=result.order, 'aria-describedby'="basic-addon1")
+            div.col-xs-10
+              div.input-group
+                span.input-group-addon Question Text
+                input.form-control(type="text", name="question", 'aria-describedby'="basic-addon1", value=result.question)
+          div.form-group.row
+            input.form-control(type="text", name="question_id", value=result.question_id, style={'display':'none'})
+            div.col-xs-3
+              div.btn-group(role="group")
+                button.btn.btn-large.btn-primary(name="question_action", type="submit", value="save") Save
+                button.btn.btn-large.btn-success(name="question_action", value="approve", type="submit") Approve

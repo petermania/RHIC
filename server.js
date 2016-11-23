@@ -240,7 +240,8 @@ app.listen(8080, function () {
 
 var insertPoll = function(db, req, callback) {
   var col = db.collection('polls')
-  col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','yes_text':req.query.yes_text,'no_text':req.query.no_text, 'yes_vote':0, 'no_vote':0}, function(err, r) {
+  var responses
+  col.insertOne({'poll_text' : req.query.poll_text, 'order' : parseInt(req.query.order), 'status' : 'inactive', 'poll_id' : Date.now(), 'launch_time' : '', 'end_time':'','response_no':req.query.response_no,'text1':req.query.text1,'text2':req.query.text2,'text3':req.query.text3,'text4':req.query.text4, 'vote1':0, 'vote2':0,'vote3':0,'vote4':0}, function(err, r) {
     assert.equal(null, err);
     assert.equal(1, r.insertedCount);
     callback()
@@ -252,7 +253,7 @@ var savePoll = function(db, req, callback) {
   var col = db.collection('polls')
   console.log(req.query.poll_id)
   col.updateOne({poll_id:parseInt(req.query.poll_id)},
-    {$set: {poll_text:req.query.poll_text, order:parseInt(req.query.order), yes_text:req.query.yes_text, no_text:req.query.no_text, message_id:''}},
+    {$set: {poll_text:req.query.poll_text, order:parseInt(req.query.order), 'text1':req.query.text1,'text2':req.query.text2,'text3':req.query.text3,'text4':req.query.text4}},
     {upsert:false},
     function(err, r) {
       assert.equal(null, err);
@@ -261,23 +262,6 @@ var savePoll = function(db, req, callback) {
       // assert.equal(1, r.upsertedCount);
       callback()
   });
-}
-
-var loadQuestions = function(db, callback){
-  questions=[]
-  approved=[]
-  disapproved=[]
-  var col=db.collection('questions')
-  col.find({status:'new'}).sort( { order: 1 }).toArray(function(err,res){
-    questions=res
-    col.find({status:'approve'}).sort( { order: 1 }).toArray(function(err,resApp){
-      approved=resApp
-      col.find({status:'disapprove'}).sort( { order: 1 }).toArray(function(err,resDis){
-        disapproved=resDis
-        callback()
-      })
-    })
-  })
 }
 
 var loadPolls = function(db, callback) {
@@ -389,7 +373,9 @@ var launchPoll = function(db, req, callback) {
         {upsert:false},
         function(err, r) {
           assert.equal(null, err)
-          sendPollSMS(req.query.poll_text,req.query.yes_text,req.query.no_text,function(message_id){
+          console.log("about to send")
+          console.log(req.query.response_no)
+          sendPollSMS(req, function(message_id){
             col.updateOne({poll_id:parseInt(req.query.poll_id)},
               {$set: {message_id:message_id}},
               {upsert:false},
@@ -401,13 +387,19 @@ var launchPoll = function(db, req, callback) {
   })
 }
 
-var sendPollSMS = function(text, yes, no, callback){
+var sendPollSMS = function(req, callback){
   console.log("prepping text")
+  console.log(req.query.response_no)
+
+  if(req.query.response_no=='2') var sms=' '+req.query.poll_text+' Reply with '+req.query.text1.toUpperCase()+' or '+req.query.text2.toUpperCase()+' to vote.'
+  else if(req.query.response_no=='3') var sms=' '+req.query.poll_text+' Reply with '+req.query.text1.toUpperCase()+', '+req.query.text2.toUpperCase()+', or '+req.query.text3.toUpperCase()+' to vote.'
+  else if(req.query.response_no=='4') var sms=' '+req.query.poll_text+' Reply with '+req.query.text1.toUpperCase()+', '+req.query.text2.toUpperCase()+', '+req.query.text3.toUpperCase()+', or '+req.query.text4.toUpperCase()+' to vote.'
+
   var body ={
     org_name_id:135715,
-    description:text,
+    description:'send SMS'+req.poll_id,
     sms:{
-      message:' '+text+' Txt '+yes.toUpperCase()+' or '+no.toUpperCase()+' to vote.'
+      message:sms
     },
     recipients:{
       type:'list',
@@ -487,9 +479,27 @@ var processInboundSMS = function (db,json,callback){
   })//find active
 }
 
+var loadQuestions = function(db, callback){
+  questions=[]
+  approved=[]
+  disapproved=[]
+  var col=db.collection('questions')
+  col.find({status:'new'}).sort( { order: 1 }).toArray(function(err,res){
+    questions=res
+    col.find({status:'approve'}).sort( { order: 1 }).toArray(function(err,resApp){
+      approved=resApp
+      col.find({status:'disapprove'}).sort( { order: 1 }).toArray(function(err,resDis){
+        disapproved=resDis
+        callback()
+      })
+    })
+  })
+}
+
 var saveQuestion = function(db, req, callback){
   var col=db.collection('questions')
   console.log(req.query.question_id)
+  console.log(req.query.question)
   col.updateOne({question_id:parseInt(req.query.question_id)},
     {$set: {question:req.query.question, order:parseInt(req.query.order)}},
     {upsert:false},
