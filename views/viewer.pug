@@ -1,0 +1,7 @@
+include partials/header
+div
+  canvas(id="chart",height="300",width="300")
+script(type="text/javascript").
+  var yes=#{yes_votes}
+  var no=#{no_votes}
+script(src="/RHICChart.js")
