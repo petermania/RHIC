@@ -450,7 +450,7 @@ var processInboundSMS = function (db,json,callback){
         })//votes.find
       }//if includes
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text2.toLowerCase())){
-        console.log("no received")
+        console.log("vote option two received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
@@ -467,7 +467,7 @@ var processInboundSMS = function (db,json,callback){
         })//votes.find
       }//elseif includes N2
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text3.toLowerCase())){
-        console.log("no received")
+        console.log("vote option three received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
@@ -484,7 +484,7 @@ var processInboundSMS = function (db,json,callback){
         })//votes.find
       }//elseif includes N3
       else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text4.toLowerCase())){
-        console.log("no received")
+        console.log("vote option four received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
