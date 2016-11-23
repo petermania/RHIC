@@ -429,7 +429,16 @@ var processInboundSMS = function (db,json,callback){
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes.length>0){
       element=actRes[0]
-      if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text1.toLowerCase())||json.TRUMPIA.CONTENTS.toLowerCase()||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
+      if(json.TRUMPIA.KEYWORD.toLowerCase()=='rhic') {
+        console.log("question")
+        var votes=db.collection('questions')
+        votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
+          assert.equal(null, err)
+          assert.equal(1, r.insertedCount)
+          callback()
+        })//col.insertOne
+      }//else
+      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text1.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
         console.log("vote option one received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
@@ -446,7 +455,7 @@ var processInboundSMS = function (db,json,callback){
           }
         })//votes.find
       }//if includes
-      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text2.toLowerCase())){
+      else if(json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text2.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text2.toLowerCase())){
         console.log("vote option two received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
@@ -463,7 +472,7 @@ var processInboundSMS = function (db,json,callback){
           }
         })//votes.find
       }//elseif includes N2
-      else if(element.text3.toLowerCase()!=''&&json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text3.toLowerCase())){
+      else if(element.text3.toLowerCase()!=''&&json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text3.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text3.toLowerCase())){
         console.log("vote option three received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
@@ -480,7 +489,7 @@ var processInboundSMS = function (db,json,callback){
           }
         })//votes.find
       }//elseif includes N3
-      else if(element.text4.toLowerCase()!=''&&json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text4.toLowerCase())){
+      else if(element.text4.toLowerCase()!=''&&json.TRUMPIA.CONTENTS.toLowerCase().includes(element.text4.toLowerCase())||json.TRUMPIA.KEYWORD.toLowerCase().includes(element.text1.toLowerCase())){
         console.log("vote option four received")
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
@@ -505,7 +514,7 @@ var processInboundSMS = function (db,json,callback){
           assert.equal(1, r.insertedCount)
           callback()
         })//col.insertOne
-      }//elseif includes NO
+      }//else
     }//if(actRes)
   })//find active
 }
