@@ -30,6 +30,7 @@ var pending = []
 var questions = []
 var approved = []
 var disapproved = []
+var results = []
 var current
 
 var setCurrentPoll = function() {
@@ -230,6 +231,34 @@ app.get('/check',function(req,res){
   })
 })
 
+app.get('/results', function(req,res){
+  console.log("loading results page")
+  console.log("Attempting Connect to db")
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err)
+    console.log("Connected successfully to db server to load results page")
+    loadResults(db, function() {
+      console.log('finished loading data')
+      db.close()
+      console.log('db closed')
+      res.render('results',{results : results, title : 'PEDG SMS System – Poll Results'})
+    })
+  })
+})
+
+app.get('/save-responses', function(req,res){
+  console.log('saving manual responses')
+  // Use connect method to connect to the server
+  MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err)
+    console.log("Connected successfully to db server")
+    saveResponses(db, req, function() {
+      db.close()
+      res.redirect('/results')
+    })
+  })
+})
+
 app.listen(8080, function () {
     console.log('Listening on port 8080')
 })
@@ -265,94 +294,92 @@ var loadPolls = function(db, callback) {
   pending=[]
   used=[]
   inactive=[]
-
-    var col=db.collection('polls')
-    col.find({status:'active'}).toArray(function(err,actRes){
-      if(actRes) active=actRes
-      console.log("Finding pending results")
-      col.find({status:'pending'}).toArray(function(err,pendRes){
-        if(pendRes.length>0) {
-          pending=pendRes
-          console.log(pending.length+" pending results")
-          for(var i=0, len=pending.length;i<len;i++){
-            element=pending[i]
-            var options = {
-              uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
-              method: 'GET',
-              headers:{
-                'Content-Type':'application/json',
-                'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
-              }
+  var col=db.collection('polls')
+  col.find({status:'active'}).toArray(function(err,actRes){
+    if(actRes) active=actRes
+    console.log("Finding pending results")
+    col.find({status:'pending'}).toArray(function(err,pendRes){
+      if(pendRes.length>0) {
+        pending=pendRes
+        console.log(pending.length+" pending results")
+        for(var i=0, len=pending.length;i<len;i++){
+          element=pending[i]
+          var options = {
+            uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
+            method: 'GET',
+            headers:{
+              'Content-Type':'application/json',
+              'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
             }
-
-            request(options,function (err, httpResponse, body2) {
-              if (err) {
-                return console.error('message send failed:', err)
-              }
-              if(JSON.parse(body2).status=='sent'){
-                col.updateMany({message_id: element.message_id},
-                  {$set: {status:'active'}},
-                  {upsert:false},
-                  function(err, r) {
-                    if(err){
-                      console.log("error: "+err)
-                    }
-                    else{
-                      console.log("write: "+r)
-                    }
-                    console.log(element.message_id+" updated to ACTIVE")
-                    if(i==len){
-                      console.log("updated final pending item")
-                      col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-                        if(inactRes) {
-                          inactive=inactRes
-                        }
-                        col.find({status:'used'}).toArray(function(err, usedRes){
-                          if (usedRes) used=usedRes
-                          console.log('loaded all polls')
-                          assert.equal(null, err)
-                          callback()
-                        })
-                      })
-                    }
-                })
-              }
-              else{
-                console.log("Pending results not updated")
-                col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-                  if(inactRes) {
-                    inactive=inactRes
-                  }
-                  col.find({status:'used'}).toArray(function(err, usedRes){
-                    if (usedRes) used=usedRes
-                    console.log('loaded all polls')
-                    assert.equal(null, err)
-                    callback()
-                  })
-                })
-              }
-
-            })
           }
 
-        }
-        else{
-          console.log("No pending results found")
-          col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-            if(inactRes) {
-              inactive=inactRes
+          request(options,function (err, httpResponse, body2) {
+            if (err) {
+              return console.error('message send failed:', err)
             }
-            col.find({status:'used'}).toArray(function(err, usedRes){
-              if (usedRes) used=usedRes
-              console.log('loaded all polls')
-              assert.equal(null, err)
-              callback()
-            })
+            if(JSON.parse(body2).status=='sent'){
+              col.updateMany({message_id: element.message_id},
+                {$set: {status:'active'}},
+                {upsert:false},
+                function(err, r) {
+                  if(err){
+                    console.log("error: "+err)
+                  }
+                  else{
+                    console.log("write: "+r)
+                  }
+                  console.log(element.message_id+" updated to ACTIVE")
+                  if(i==len){
+                    console.log("updated final pending item")
+                    col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+                      if(inactRes) {
+                        inactive=inactRes
+                      }
+                      col.find({status:'used'}).toArray(function(err, usedRes){
+                        if (usedRes) used=usedRes
+                        console.log('loaded all polls')
+                        assert.equal(null, err)
+                        callback()
+                      })
+                    })
+                  }
+              })
+            }
+            else{
+              console.log("Pending results not updated")
+              col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+                if(inactRes) {
+                  inactive=inactRes
+                }
+                col.find({status:'used'}).toArray(function(err, usedRes){
+                  if (usedRes) used=usedRes
+                  console.log('loaded all polls')
+                  assert.equal(null, err)
+                  callback()
+                })
+              })
+            }
+
           })
         }
-      })
-    })
 
+      }
+      else{
+        console.log("No pending results found")
+        col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+          if(inactRes) {
+            inactive=inactRes
+          }
+          col.find({status:'used'}).toArray(function(err, usedRes){
+            if (usedRes) used=usedRes
+            console.log('loaded all polls')
+            assert.equal(null, err)
+            callback()
+          })
+        })
+      }
+    })
+  })
 }
 
 var launchPoll = function(db, req, callback) {
@@ -430,7 +457,7 @@ var processInboundSMS = function (db,json,callback){
     if(json.TRUMPIA.KEYWORD=='RHIC') {
       console.log("found: "+json.TRUMPIA.KEYWORD)
       var votes=db.collection('questions')
-      votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
+      votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1,'type':'inbound'}, function(err, r) {
         assert.equal(null, err)
         assert.equal(1, r.insertedCount)
         callback()
@@ -443,7 +470,7 @@ var processInboundSMS = function (db,json,callback){
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
-            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 1, 'phonenumber':json.TRUMPIA.PHONENUMBER,'type':'inbound'}, function(err, r) {
               assert.equal(null, err)
               assert.equal(1, r.insertedCount)
               callback()
@@ -460,7 +487,7 @@ var processInboundSMS = function (db,json,callback){
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
-            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 2, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 2, 'phonenumber':json.TRUMPIA.PHONENUMBER,'type':'inbound'}, function(err, r) {
               assert.equal(null, err)
               assert.equal(1, r.insertedCount)
               callback()
@@ -477,7 +504,7 @@ var processInboundSMS = function (db,json,callback){
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
-            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 3, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 3, 'phonenumber':json.TRUMPIA.PHONENUMBER,'type':'inbound'}, function(err, r) {
               assert.equal(null, err)
               assert.equal(1, r.insertedCount)
               callback()
@@ -494,7 +521,7 @@ var processInboundSMS = function (db,json,callback){
         var votes=db.collection('votes')
         votes.find({'phonenumber':json.TRUMPIA.PHONENUMBER,'poll_id':element.poll_id}).toArray(function(err,res){
           if(res.length==0){
-            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 4, 'phonenumber':json.TRUMPIA.PHONENUMBER}, function(err, r) {
+            votes.insertOne({'poll_id' : element.poll_id, 'vote' : 4, 'phonenumber':json.TRUMPIA.PHONENUMBER,'type':'inbound'}, function(err, r) {
               assert.equal(null, err)
               assert.equal(1, r.insertedCount)
               callback()
@@ -509,7 +536,7 @@ var processInboundSMS = function (db,json,callback){
       else {
         console.log("question")
         var votes=db.collection('questions')
-        votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1}, function(err, r) {
+        votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1,'type':'inbound'}, function(err, r) {
           assert.equal(null, err)
           assert.equal(1, r.insertedCount)
           callback()
@@ -756,6 +783,126 @@ var removeKeywords = function(db, callback){
         }
       }
       callback()
+    })
+  })
+}
+
+var loadResults = function(db,callback){
+  results=[]
+  var polls=db.collection('polls')
+  polls.find().toArray(function(e,r){
+    for(var i=0;i<r.length;i++){
+      var last=false
+      if(i==r.length-1) last=true
+      countVotes(db, r[i], last, function(submission,final){
+        results.push(submission)
+        if(final==true) {
+          callback()
+        }
+      })
+    }
+  })
+}
+
+var countVotes = function(db, r, last, callback){
+  var one=0, two=0, three=0, four=0
+  var col=db.collection('votes')
+  col.find({poll_id:parseInt(r.poll_id)}).toArray(function(err,res){
+    console.log(res.length)
+    for(var j=0;j<res.length;j++){
+      if(res[j].vote==1){
+        one++
+      }
+      else if(res[j].vote==2){
+        two++
+      }
+      else if(res[j].vote==3){
+        three++
+      }
+      else if(res[j].vote==4){
+        four++
+      }
+    }
+    console.log("votes: "+one)
+
+    var submission = {}
+    submission.poll_id=r.poll_id
+    submission.poll_text=r.poll_text
+    submission.vote1=one
+    submission.vote2=two
+    submission.vote3=three
+    submission.vote4=four
+    submission.text1=r.text1
+    submission.text2=r.text2
+    submission.text3=r.text3
+    submission.text4=r.text4
+    submission.response_no=r.response_no
+    var final=false
+    if (last==true) final=true
+    callback(submission, final)
+  })
+}
+
+var saveResponses = function(db,req,callback) {
+  var col=db.collection('votes')
+  var toAdd = []
+  col.find({poll_id:parseInt(req.query.poll_id),vote:1}).toArray(function(err,res){
+    console.log('1')
+    if(res.length<req.query.vote1){
+      for(i=0;i<req.query.vote1-res.length;i++){
+        var result={}
+        result.poll_id=parseInt(req.query.poll_id)
+        result.vote=1
+        result.phonenumber=''
+        result.vote_type='manual'
+        toAdd.push(result)
+      }
+    }
+    col.find({poll_id:parseInt(req.query.poll_id),vote:2}).toArray(function(err2,res2){
+      console.log('2')
+      if(res.length<req.query.vote2){
+        for(i=0;i<req.query.vote2-res2.length;i++){
+          var result={}
+          result.poll_id=parseInt(req.query.poll_id)
+          result.vote=2
+          result.phonenumber=''
+          result.vote_type='manual'
+          toAdd.push(result)
+        }
+      }
+      col.find({poll_id:parseInt(req.query.poll_id),vote:3}).toArray(function(err3,res3){
+        console.log('3')
+        if(res.length<req.query.vote3){
+          for(i=0;i<req.query.vote3-res3.length;i++){
+            var result={}
+            result.poll_id=parseInt(req.query.poll_id)
+            result.vote=3
+            result.phonenumber=''
+            result.vote_type='manual'
+            toAdd.push(result)
+          }
+        }
+        col.find({poll_id:parseInt(req.query.poll_id),vote:4}).toArray(function(err4,res4){
+          console.log('4')
+          if(res.length<req.query.vote4){
+            for(i=0;i<req.query.vote4-res4.length;i++){
+              var result={}
+              result.poll_id=parseInt(req.query.poll_id)
+              result.vote=4
+              result.phonenumber=''
+              result.vote_type='manual'
+              toAdd.push(result)
+            }
+          }
+          col.insertMany(toAdd, function(e, r) {
+            console.log('saving')
+            if(e){
+              console.log(e)
+            }
+            callback()
+          })
+        })
+      })
     })
   })
 }
