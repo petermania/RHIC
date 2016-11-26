@@ -1,0 +1,36 @@
+include partials/header
+div.container
+  if (results.length>0)
+    div.card(style={'margin-top':'10px'})
+      h3.card-header.card-default Polls
+      each result in results
+        div.card-block(style={'border-bottom':'1px solid rgba(0,0,0,.125)'})
+          form.form-horizontal(action="/save-responses", method="get")
+            div.form-group.row
+              div.col-xs-12
+                div.input-group
+                  span.input-group-addon Poll
+                  input(type="text", class="form-control", value=result.poll_text, 'aria-describedby'="basic-addon1",readonly)
+            div.form-group.row
+              div.col-xs-2
+                div.input-group
+                  span.input-group-addon #{result.text1}
+                  input(type="text", class="form-control", value=result.vote1, 'aria-describedby'="basic-addon1", name='vote1')
+              div.col-xs-2
+                div.input-group
+                  span.input-group-addon #{result.text2}
+                  input(type="text", class="form-control", value=result.vote2, 'aria-describedby'="basic-addon1", name='vote2')
+              if(result.response_no=='3'||result.response_no=='4')
+                div.col-xs-2
+                  div.input-group
+                    span.input-group-addon #{result.text3}
+                    input(type="text", class="form-control text3",value=result.vote3, 'aria-describedby'="basic-addon1", name='vote3')
+              if(result.response_no=='4')
+                div.col-xs-2
+                  div.input-group
+                    span.input-group-addon #{result.text1}
+                    input(type="text", class="form-control text4",value=result.vote4, 'aria-describedby'="basic-addon1", name='vote4')
+              input.form-control(type="text", name="poll_id", value=result.poll_id, style={'display':'none'})
+            div.form-group.row
+              div.col-xs-3.col-md-2
+                button.btn.btn-large.btn-primary.form-control(type="submit") Save
