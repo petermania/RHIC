@@ -6,11 +6,15 @@ var assert = require('assert')
 var bodyParser = require('body-parser')
 var request=require('request')
 var json2csv = require('json2csv')
-var io = require('socket.io').listen(http)
 var path = require ('path')
-
 var xml2js = require('xml2js')
 var fs = require("fs")
+
+var server = app.listen(8080, function () {
+    console.log('Listening on port 8080')
+})
+
+var io = require('socket.io')(server)
 
 var currentMessage
 
@@ -55,6 +59,12 @@ var setCurrentPoll = function() {
 }
 
 setCurrentPoll()
+
+io.on('connection', function(client) {
+    console.log('Client connected...');
+    client.on('join', function(data) {
+    });
+});
 
 app.get('/', function (req, res) {
   console.log("Attempting Initial Connect to db")
@@ -190,6 +200,7 @@ app.get('/inbound', function (req, res) {
           processInboundSMS(db, json, function(){
             console.log("SMS processed and counted")
             db.close()
+            io.emit('update', {})
             res.redirect('/')
           })
         })//mongoconnect
@@ -269,6 +280,7 @@ app.get('/save-responses', function(req,res){
       console.log("Connected successfully to db server")
       saveResponses(db, req, function() {
         db.close()
+        io.emit('update', {})
         res.redirect('/results')
       })
     })
@@ -281,14 +293,11 @@ app.get('/save-responses', function(req,res){
       console.log("Connected successfully to db server")
       saveViewer(db, req, function() {
         db.close()
-        res.redirect('/viewer')
+        io.emit('reload',{})
+        res.redirect('/results')
       })
     })
   }
-})
-
-app.listen(8080, function () {
-    console.log('Listening on port 8080')
 })
 
 var insertPoll = function(db, req, callback) {
@@ -707,7 +716,7 @@ var checkKeywords = function(req){
           auto_response :
              {
                "frequency" : "1",
-               "message" : "Thank You for Voting!",
+               "message" : " Thank You for Voting!",
              }
         }
 
@@ -870,9 +879,11 @@ var countVotes = function(db, r, last, callback){
 var saveResponses = function(db,req,callback) {
   var col=db.collection('votes')
   var toAdd = []
+  var adding=false
   col.find({poll_id:parseInt(req.query.poll_id),vote:1}).toArray(function(err,res){
     console.log('1')
     if(res.length<req.query.vote1){
+      adding=true
       for(i=0;i<req.query.vote1-res.length;i++){
         var result={}
         result.poll_id=parseInt(req.query.poll_id)
@@ -883,8 +894,10 @@ var saveResponses = function(db,req,callback) {
       }
     }
     col.find({poll_id:parseInt(req.query.poll_id),vote:2}).toArray(function(err2,res2){
-      console.log('2')
-      if(res.length<req.query.vote2){
+      console.log('2: '+req.query.vote2)
+      console.log('2 current: '+res.length)
+      if(res2.length<req.query.vote2){
+        adding=true
         for(i=0;i<req.query.vote2-res2.length;i++){
           var result={}
           result.poll_id=parseInt(req.query.poll_id)
@@ -896,7 +909,8 @@ var saveResponses = function(db,req,callback) {
       }
       col.find({poll_id:parseInt(req.query.poll_id),vote:3}).toArray(function(err3,res3){
         console.log('3')
-        if(res.length<req.query.vote3){
+        if(res3.length<req.query.vote3){
+          adding=true
           for(i=0;i<req.query.vote3-res3.length;i++){
             var result={}
             result.poll_id=parseInt(req.query.poll_id)
@@ -908,7 +922,8 @@ var saveResponses = function(db,req,callback) {
         }
         col.find({poll_id:parseInt(req.query.poll_id),vote:4}).toArray(function(err4,res4){
           console.log('4')
-          if(res.length<req.query.vote4){
+          if(res4.length<req.query.vote4){
+            adding=true
             for(i=0;i<req.query.vote4-res4.length;i++){
               var result={}
               result.poll_id=parseInt(req.query.poll_id)
@@ -918,13 +933,20 @@ var saveResponses = function(db,req,callback) {
               toAdd.push(result)
             }
           }
-          col.insertMany(toAdd, function(e, r) {
-            console.log('saving')
-            if(e){
-              console.log(e)
-            }
+          console.log("changes: "+toAdd.length)
+          if(toAdd.length>0){
+            col.insertMany(toAdd, function(e, r) {
+              console.log('saving')
+              if(e){
+                console.log(e)
+              }
+              callback()
+            })
+          }
+          else{
+            console.log("no changes")
             callback()
-          })
+          }
         })
       })
     })

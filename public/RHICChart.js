@@ -1,3 +1,5 @@
+// var server_location='http://localhost:8080'
+var server_location='http://54.173.181.162:8080/'
 window.chartOptions = {
   segmentShowStroke: false,
   percentageInnerCutout: 50,
@@ -22,6 +24,27 @@ window.chartOptions = {
     }
   }
 }
+
+var socket = io.connect(server_location);
+
+socket.on('connect', function(data) {
+    console.log('connecting')
+    socket.emit('join', 'Hello World from client');
+});
+
+socket.on('messages', function(data) {
+    console.log(data);
+});
+
+socket.on('reload',function(data){
+  console.log('reload received!')
+  location.reload()
+})
+
+socket.on('update',function(data){
+  console.log('updating')
+  location.reload()
+})
 
 var chartUpdate = function() {
   Chart.defaults.global.tooltips.enabled = false;
@@ -69,9 +92,8 @@ var chartUpdate = function() {
       options: chartOptions
   })
 
-
   // Schedule next chart update tick
-  setTimeout (function() { chartUpdate(); }, 1000)
+  // setTimeout (function() { chartUpdate(); }, 5000)
 }
 $(document).ready(function() {
   chartUpdate()
