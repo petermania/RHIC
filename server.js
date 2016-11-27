@@ -266,7 +266,7 @@ app.get('/results', function(req,res){
       console.log('finished loading data')
       db.close()
       console.log('db closed')
-      res.render('results',{results : results, viewing:viewer, title : 'PEDG SMS System – Poll Results'})
+      res.render('results',{results : results, viewing:viewer, current:current, title : 'PEDG SMS System – Poll Results'})
     })
   })
 })
