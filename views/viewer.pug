@@ -9,31 +9,30 @@ html
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css", rel='stylesheet', type="text/css")
     link(href="chart.css",rel='stylesheet',type='text/css')
   body
-    div.container
-      canvas(id="chart",height="600",width="600")
-      div.title #{name}
-      div.legend
+    canvas(id="chart",height="600",width="600")
+    div.title #{name}
+    div.legend
+      div.row
+        div.box.green
+          if(text1.toLowerCase()=='rhyes')
+            div.label.one Yes
+          else
+            div.label.one #{text1}
+      div.row
+        div.box.blue
+          if(text2.toLowerCase()=='rhno')
+            div.label.two No
+          else
+            div.label.two #{text2}
+      if(response_no>2)
         div.row
-          div.col-xs-2.green
-            if(text1.toLowerCase()=='rhyes')
-              div.label.one Yes
-            else
-              div.label.one #{text1}
+          div.box.grey
+            div.label.three #{text3}
+      if(response_no>3)
         div.row
           div.col-xs-2.blue
-            if(text2.toLowerCase()=='rhno')
-              div.label.two No
-            else
-              div.label.two #{text2}
-        if(response_no>2)
-          div.row
-            div.col-xs-2.grey
-              div.label.three #{text3}
-        if(response_no>3)
-          div.row
-            div.col-xs-2.blue
-              div.label.four #{text4}
-      img.logo(src="RHIC_Logo_noTexture_01.png")
+            div.label.four #{text4}
+    img.logo(src="logo_white.png")
     script(type="text/javascript").
       var vote1=#{vote1}
       var vote2=#{vote2}
