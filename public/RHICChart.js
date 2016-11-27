@@ -1,5 +1,6 @@
-// var server_location='http://localhost:8080'
-var server_location='http://54.173.181.162:8080/'
+var server_location='http://localhost:8080'
+// var server_location='http://54.173.181.162:8080/'
+
 window.chartOptions = {
   segmentShowStroke: false,
   percentageInnerCutout: 50,
@@ -25,6 +26,7 @@ window.chartOptions = {
   }
 }
 
+
 var socket = io.connect(server_location);
 
 socket.on('connect', function(data) {
@@ -43,7 +45,17 @@ socket.on('reload',function(data){
 
 socket.on('update',function(data){
   console.log('updating')
-  location.reload()
+  console.log(data)
+  vote1=data.vote1
+  vote2=data.vote2
+  vote3=data.vote3
+  vote4=data.vote4
+  text1=data.text1
+  text2=data.text2
+  text3=data.text3
+  text4=data.text4
+  response_no=data.response_no
+  chartUpdate()
 })
 
 var chartUpdate = function() {
@@ -69,10 +81,7 @@ var chartUpdate = function() {
   colors.push("#BDE724")
   labels.push(text1.toUpperCase())
 
-
-
-
-  var data = {
+  var info = {
     datasets: [{
         data: input,
         backgroundColor:colors,
@@ -82,19 +91,23 @@ var chartUpdate = function() {
   }
   console.log("Updating Chart")
 
+
   // Replace the chart canvas element
   $('#chart').replaceWith('<canvas id="chart" width="500" height="500"></canvas>')
   // Draw the chart
   var ctx = $('#chart').get(0).getContext("2d")
   var myPieChart = new Chart(ctx,{
       type: 'doughnut',
-      data: data,
+      data: info,
       options: chartOptions
   })
+
+
 
   // Schedule next chart update tick
   // setTimeout (function() { chartUpdate(); }, 5000)
 }
+
 $(document).ready(function() {
   chartUpdate()
 })

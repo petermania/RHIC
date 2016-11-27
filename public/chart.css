@@ -6,7 +6,6 @@
 #chart {
     margin:auto;
     width:auto !important
-    height:100% !important
 }
 
 .title{
@@ -50,7 +49,7 @@
 
 .logo{
   width:200px;
-  position:absolute;
-  top:560px;
-  left:960px
+  position:absolute !important;
+  top:580px;
+  left:900px;
 }

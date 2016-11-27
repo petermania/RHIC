@@ -279,9 +279,14 @@ app.get('/save-responses', function(req,res){
       assert.equal(null, err)
       console.log("Connected successfully to db server")
       saveResponses(db, req, function() {
-        db.close()
-        io.emit('update', {})
-        res.redirect('/results')
+        loadVotes(db, function(vote1, text1, vote2, text2, vote3, text3, vote4, text4, name, num) {
+          console.log('finished loading data')
+          console.log('one: '+vote1+' two: '+vote2+' three: '+vote3+' four: '+vote4)
+          db.close()
+          console.log('db closed')
+          io.emit('update', {vote1 : vote1, text1:text1, vote2:vote2, text2:text2, vote3:vote3, text3:text3, vote4:vote4, text4:text4, response_no:num, name:name, title : 'RHIC Viewer'})
+          res.redirect('/results')
+        })
       })
     })
   }
