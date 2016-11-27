@@ -93,7 +93,7 @@ var chartUpdate = function() {
 
 
   // Replace the chart canvas element
-  $('#chart').replaceWith('<canvas id="chart" width="500" height="500"></canvas>')
+  $('#chart').replaceWith('<canvas id="chart" width="700" height="700"></canvas>')
   // Draw the chart
   var ctx = $('#chart').get(0).getContext("2d")
   var myPieChart = new Chart(ctx,{
