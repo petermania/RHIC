@@ -8,3 +8,40 @@
     width:auto !important
     height:100% !important
 }
+
+.title{
+  font-family:"TradeGothic";
+  text-transform:uppercase;
+  font-size:56px;
+  text-align:center;
+  color:#666666;
+  line-height:100%;
+  padding-top:10px
+}
+
+.legend{
+  margin-bottom:70px;
+  padding-top:20px
+}
+
+.label{
+  font-family:"TradeGothic";
+  text-transform:uppercase;
+  font-size:30px;
+  text-align:center;
+}
+
+.green{
+  background-color:#BDE724;
+  color:#666666
+}
+
+.blue{
+  background-color:#005985;
+  color:#dddddd
+}
+
+.grey{
+  background-color:#D2D2D2;
+  color:#666666
+}

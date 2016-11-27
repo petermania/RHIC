@@ -7,13 +7,13 @@ window.chartOptions = {
   showTooltips:false,
   padding:50,
   title:{
-    display:true,
+    display:false,
     fontFamily:"TradeGothic",
     text:name.toUpperCase(),
     fontSize:60
   },
   legend:{
-    display: true,
+    display: false,
     labels:{
       fontSize:30,
       fontFamily:"TradeGothic",
@@ -23,28 +23,31 @@ window.chartOptions = {
   }
 }
 
-var chartUpdate = function(value) {
+var chartUpdate = function() {
   Chart.defaults.global.tooltips.enabled = false;
-  console.log("updating")
   var input=[]
   var colors=[]
   var labels=[]
-  input.push(vote1)
-  colors.push("#BDE724")
-  labels.push(text1.toUpperCase())
-  input.push(vote2)
-  colors.push("#005985")
-  labels.push(text2.toUpperCase())
-  if(response_no>2){
-    input.push(vote3)
-    colors.push("#D2D2D2")
-    labels.push(text3.toUpperCase())
-  }
   if(response_no>3){
     input.push(vote4)
     colors.push("#005985")
     labels.push(text4.toUpperCase())
   }
+  if(response_no>2){
+    input.push(vote3)
+    colors.push("#D2D2D2")
+    labels.push(text3.toUpperCase())
+  }
+  input.push(vote2)
+  colors.push("#005985")
+  labels.push(text2.toUpperCase())
+
+  input.push(vote1)
+  colors.push("#BDE724")
+  labels.push(text1.toUpperCase())
+
+
+
 
   var data = {
     datasets: [{
@@ -54,13 +57,12 @@ var chartUpdate = function(value) {
     }],
     labels: labels
   }
-  console.log("Updating Chart: ", value)
+  console.log("Updating Chart")
 
   // Replace the chart canvas element
-  $('#chart').replaceWith('<canvas id="chart" width="1080" height="1080"></canvas>')
+  $('#chart').replaceWith('<canvas id="chart" width="900" height="900"></canvas>')
   // Draw the chart
   var ctx = $('#chart').get(0).getContext("2d")
-  console.log(ctx.width)
   var myPieChart = new Chart(ctx,{
       type: 'doughnut',
       data: data,
@@ -69,8 +71,8 @@ var chartUpdate = function(value) {
 
 
   // Schedule next chart update tick
-  // setTimeout (function() { chartUpdate(value - 1); }, 5000)
+  setTimeout (function() { chartUpdate(); }, 1000)
 }
 $(document).ready(function() {
-  chartUpdate(99)
+  chartUpdate()
 })

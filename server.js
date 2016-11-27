@@ -31,7 +31,7 @@ var questions = []
 var approved = []
 var disapproved = []
 var results = []
-var current
+var current, viewer
 
 var setCurrentPoll = function() {
   MongoClient.connect(url, function(err, db) {
@@ -41,11 +41,13 @@ var setCurrentPoll = function() {
     col.find({status:'active'}).toArray(function(err,actRes){
       if(actRes[0]){
         current=actRes[0].poll_id
+        viewer=current
         console.log("current: "+current)
       }
       else{
         console.log("no active poll")
         current=0
+        viewer=0
       }
     })
     db.close()
@@ -162,6 +164,18 @@ app.get('/trigger-poll', function (req, res) {
       })
     })
   }
+  else if(req.query.trigger=='delete'){
+    console.log('commencing delete')
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err)
+      console.log("Connected successfully to db server")
+      deletePoll(db,req,function(){
+        console.log('deleting new poll')
+        db.close()
+        res.redirect('/')
+      })
+    })
+  }
 })
 
 app.get('/inbound', function (req, res) {
@@ -241,22 +255,36 @@ app.get('/results', function(req,res){
       console.log('finished loading data')
       db.close()
       console.log('db closed')
-      res.render('results',{results : results, title : 'PEDG SMS System – Poll Results'})
+      res.render('results',{results : results, viewing:viewer, title : 'PEDG SMS System – Poll Results'})
     })
   })
 })
 
 app.get('/save-responses', function(req,res){
-  console.log('saving manual responses')
-  // Use connect method to connect to the server
-  MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err)
-    console.log("Connected successfully to db server")
-    saveResponses(db, req, function() {
-      db.close()
-      res.redirect('/results')
+  if(req.query.trigger=='save'){
+    console.log('saving manual responses')
+    // Use connect method to connect to the server
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err)
+      console.log("Connected successfully to db server")
+      saveResponses(db, req, function() {
+        db.close()
+        res.redirect('/results')
+      })
     })
-  })
+  }
+  else if(req.query.trigger=='view'){
+    console.log('saving manual responses')
+    // Use connect method to connect to the server
+    MongoClient.connect(url, function(err, db) {
+      assert.equal(null, err)
+      console.log("Connected successfully to db server")
+      saveViewer(db, req, function() {
+        db.close()
+        res.redirect('/viewer')
+      })
+    })
+  }
 })
 
 app.listen(8080, function () {
@@ -601,7 +629,7 @@ var setQuestionStatus = function(db, req, callback){
 
 var loadVotes = function(db, callback){
   var polls=db.collection('polls')
-  polls.find({poll_id:current}).toArray(function(e,r){
+  polls.find({poll_id:viewer}).toArray(function(e,r){
     var num=r[0].response_no
     var text1=r[0].text1
     var text2=r[0].text2
@@ -614,13 +642,13 @@ var loadVotes = function(db, callback){
     console.log("number of responses: "+num)
     var col=db.collection('votes')
     var one, two, three, four
-    col.find({poll_id:current,vote:1}).toArray(function(err,res){
+    col.find({poll_id:viewer,vote:1}).toArray(function(err,res){
       one=res.length
-      col.find({poll_id:current,vote:2}).toArray(function(err2, res2){
+      col.find({poll_id:viewer,vote:2}).toArray(function(err2, res2){
         two=res2.length
-        col.find({poll_id:current,vote:3}).toArray(function(err3, res3){
+        col.find({poll_id:viewer,vote:3}).toArray(function(err3, res3){
           three=res3.length
-          col.find({poll_id:current,vote:4}).toArray(function(err4, res4){
+          col.find({poll_id:viewer,vote:4}).toArray(function(err4, res4){
             four=res4.length
             callback(one,text1,two,text2,three,text3,four,text4,name, num)
           })
@@ -765,20 +793,16 @@ var removeKeywords = function(db, callback){
           }
         }
         for(var j=0;j<res.length;j++){
-          console.log(body2.keyword[i].keyword)
           if(body2.keyword[i].keyword=='RHIC'||res[j].text1==body2.keyword[i].keyword||res[j].text2==body2.keyword[i].keyword||res[j].text3==body2.keyword[i].keyword||res[j].text4==body2.keyword[i].keyword){
-            console.log('found result')
             keyword_used=true
           }
         }
         if(keyword_used==false){
           delete_options.uri+='/'+parseInt(body2.keyword[i].keyword_id)
-          console.log(delete_options.uri)
           request(delete_options,function(err,httpResponse){
             if (err) {
               return console.error('delete Keywords', err)
             }
-            console.log(httpResponse.body)
           })
         }
       }
@@ -904,5 +928,21 @@ var saveResponses = function(db,req,callback) {
         })
       })
     })
+  })
+}
+
+var saveViewer = function(db,req,callback){
+  console.log("setting new view id:"+req.query.poll_id)
+  viewer=parseInt(req.query.poll_id)
+  callback()
+}
+
+var deletePoll = function(db,req,callback){
+  console.log('deleting poll from DB')
+  var col = db.collection('polls')
+  console.log(req.query.poll_id)
+  col.deleteOne({poll_id:parseInt(req.query.poll_id)})
+  removeKeywords(db,function(){
+    callback()
   })
 }

@@ -32,5 +32,10 @@ div.container
                     input(type="text", class="form-control text4",value=result.vote4, 'aria-describedby'="basic-addon1", name='vote4')
               input.form-control(type="text", name="poll_id", value=result.poll_id, style={'display':'none'})
             div.form-group.row
-              div.col-xs-3.col-md-2
-                button.btn.btn-large.btn-primary.form-control(type="submit") Save
+              div.col-xs-3
+                div.btn-group(role="group")
+                  button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
+                  button.btn.btn-large.btn-warning(name="trigger", type="submit", value="view") View
+              if(result.poll_id==viewing)
+                div.col-xs-3
+                  span.input-group-addon(style={'background-color':"green",color:'white'}) CURRENT VIEW

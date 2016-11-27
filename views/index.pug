@@ -123,6 +123,7 @@ div.container
               div.col-xs-3
                 div.btn-group(role="group")
                   button.btn.btn-large.btn-primary(name="trigger", type="submit", value="save") Save
+                  button.btn.btn-large.btn-danger(name="trigger", type="submit", value="delete") Delete
                   button.btn.btn-large.btn-primary(name="trigger", value="launch", type="submit",style={'background':'green','border-color':'green'}) Launch
   if(used.length>0)
     div.card(style={'margin-top':'10px'})
@@ -138,20 +139,20 @@ div.container
             div.form-group.row
               div.col-xs-3
                 div.input-group
-                  span.input-group-addon #{result.text1}
-                  input(type="text", class="form-control", value=result.vote1, 'aria-describedby'="basic-addon1", name='text1', readonly)
+                  span.input-group-addon Res. 1
+                  input(type="text", class="form-control", value=result.text1, 'aria-describedby'="basic-addon1", name='text1', readonly)
               div.col-xs-3
                 div.input-group
-                  span.input-group-addon #{result.text2}
-                  input(type="text", class="form-control", value=result.vote2, 'aria-describedby'="basic-addon1", name='text2', readonly)
+                  span.input-group-addon Res. 2
+                  input(type="text", class="form-control", value=result.text2, 'aria-describedby'="basic-addon1", name='text2', readonly)
               if(result.response_no=='3'||result.response_no=='4')
                 div.col-xs-3
                   div.input-group
-                    span.input-group-addon #{result.text3}
-                    input(type="text", class="form-control text3",value=result.vote3, 'aria-describedby'="basic-addon1", name='text3', readonly)
+                    span.input-group-addon Res. 3
+                    input(type="text", class="form-control text3",value=result.text3, 'aria-describedby'="basic-addon1", name='text3', readonly)
               if(result.response_no=='4')
                 div.col-xs-3
                   div.input-group
-                    span.input-group-addon #{result.text4}
-                    input(type="text", class="form-control text4",value=result.vote4, 'aria-describedby'="basic-addon1", name='text4', readonly)
+                    span.input-group-addon Res. 4
+                    input(type="text", class="form-control text4",value=result.text4, 'aria-describedby'="basic-addon1", name='text4', readonly)
 script(src="/index.js")
