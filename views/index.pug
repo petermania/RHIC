@@ -130,7 +130,7 @@ div.container
       h3.card-header.card-default Previous Polls
       each result in used
         div.card-block(style={'border-bottom':'1px solid rgba(0,0,0,.125)'})
-          form.form-horizontal
+          form.form-horizontal(action="/trigger-poll", method="get")
             div.form-group.row
               div.col-xs-11
                 div.input-group
@@ -155,4 +155,8 @@ div.container
                   div.input-group
                     span.input-group-addon Res. 4
                     input(type="text", class="form-control text4",value=result.text4, 'aria-describedby'="basic-addon1", name='text4', readonly)
+            div.form-group.row
+              input.form-control(type="text", name="poll_id", value=result.poll_id, style={'display':'none'})
+              div.col-xs-2
+                button.btn.btn-large.btn-danger(name="trigger", type="submit", value="delete") Delete
 script(src="/index.js")
