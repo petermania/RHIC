@@ -1,5 +1,5 @@
-var server_location='http://localhost:8080'
-// var server_location='http://54.173.181.162:8080/'
+// var server_location='http://localhost:8080'
+var server_location='http://54.173.181.162:8080/'
 
 var sky=new Image()
 var grass=new Image()
