@@ -31,17 +31,6 @@ div.container
                     span.input-group-addon Res. 4
                     input(type="text", class="form-control text4",value=result.text4, 'aria-describedby'="basic-addon1", name='text4', readonly)
               input.form-control(type="text", name="poll_id", value=result.poll_id, style={'display':'none'})
-
-  if (pending.length>0)
-    div.card(style={'margin-top':'10px'})
-      h3.card-header.card-danger Pending Polls
-      each result in pending
-        each result in pending
-          div.card-block
-            form.form-horizontal
-              div.form-group.form-group-lg
-                div.col-xs-6
-                  p #{result.poll_text}
   div.card(style={'margin-top':'10px'})
     h3.card-header.card-info Draft Polls
       button.btn.btn-large.btn-secondary(type="button", data-toggle="collapse", data-target="#newPoll", aria-expanded="false", aria-controls="newPoll" style={'float':'right'}) Create New

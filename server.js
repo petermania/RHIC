@@ -30,7 +30,6 @@ var url = 'mongodb://rhicDB:rhic4eva@ec2-54-173-181-162.compute-1.amazonaws.com:
 var active = []
 var inactive = []
 var used = []
-var pending = []
 var questions = []
 var approved = []
 var disapproved = []
@@ -75,7 +74,7 @@ app.get('/', function (req, res) {
       console.log('finished loading data')
       db.close()
       console.log('db closed')
-      res.render('index',{active : active, inactive : inactive, used : used, pending : pending, title : 'PEDG SMS System'})
+      res.render('index',{active : active, inactive : inactive, used : used, title : 'PEDG SMS System'})
     })
   })
 })
@@ -333,95 +332,23 @@ var savePoll = function(db, req, callback) {
 
 var loadPolls = function(db, callback) {
   active=[]
-  pending=[]
   used=[]
   inactive=[]
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
     if(actRes) active=actRes
-    console.log("Finding pending results")
-    col.find({status:'pending'}).toArray(function(err,pendRes){
-      if(pendRes.length>0) {
-        pending=pendRes
-        console.log(pending.length+" pending results")
-        for(var i=0, len=pending.length;i<len;i++){
-          element=pending[i]
-          var options = {
-            uri: 'http://api.trumpia.com/rest/v1/PEDG2016/message/'+pending[i].message_id,
-            method: 'GET',
-            headers:{
-              'Content-Type':'application/json',
-              'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
-            }
-          }
-
-          request(options,function (err, httpResponse, body2) {
-            if (err) {
-              return console.error('message send failed:', err)
-            }
-            if(JSON.parse(body2).status=='sent'){
-              col.updateMany({message_id: element.message_id},
-                {$set: {status:'active'}},
-                {upsert:false},
-                function(err, r) {
-                  if(err){
-                    console.log("error: "+err)
-                  }
-                  else{
-                    console.log("write: "+r)
-                  }
-                  console.log(element.message_id+" updated to ACTIVE")
-                  if(i==len){
-                    console.log("updated final pending item")
-                    col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-                      if(inactRes) {
-                        inactive=inactRes
-                      }
-                      col.find({status:'used'}).toArray(function(err, usedRes){
-                        if (usedRes) used=usedRes
-                        console.log('loaded all polls')
-                        assert.equal(null, err)
-                        callback()
-                      })
-                    })
-                  }
-              })
-            }
-            else{
-              console.log("Pending results not updated")
-              col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-                if(inactRes) {
-                  inactive=inactRes
-                }
-                col.find({status:'used'}).toArray(function(err, usedRes){
-                  if (usedRes) used=usedRes
-                  console.log('loaded all polls')
-                  assert.equal(null, err)
-                  callback()
-                })
-              })
-            }
-
-          })
-        }
-
+    col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
+      if(inactRes) {
+        inactive=inactRes
       }
-      else{
-        console.log("No pending results found")
-        col.find({status:'inactive'}).sort( { order: 1 } ).toArray(function(err,inactRes){
-          if(inactRes) {
-            inactive=inactRes
-          }
-          col.find({status:'used'}).toArray(function(err, usedRes){
-            if (usedRes) used=usedRes
-            console.log('loaded all polls')
-            assert.equal(null, err)
-            callback()
-          })
-        })
-      }
+      col.find({status:'used'}).toArray(function(err, usedRes){
+        if (usedRes) used=usedRes
+        console.log('loaded all polls')
+        assert.equal(null, err)
+        callback()
+      })
     })
-  })
+  })//keep
 }
 
 var launchPoll = function(db, req, callback) {
@@ -435,20 +362,19 @@ var launchPoll = function(db, req, callback) {
         assert.equal(null, err)
         current=parseInt(req.query.poll_id)
         col.updateOne({poll_id:parseInt(req.query.poll_id)},
-          {$set: {status:'pending','launch_time':Date.now()}},
+          {$set: {status:'active','launch_time':Date.now()}},
           {upsert:false},
           function(err, r) {
             assert.equal(null, err)
-            console.log("about to send")
-            console.log(req.query.response_no)
-            sendPollSMS(req, function(message_id){
-              col.updateOne({poll_id:parseInt(req.query.poll_id)},
-                {$set: {message_id:message_id}},
-                {upsert:false},
-                function(err, r) {
-                  callback()
-                })
-            })
+            callback()
+            // sendPollSMS(req, function(message_id){
+              // col.updateOne({poll_id:parseInt(req.query.poll_id)},
+              //   {$set: {message_id:message_id}},
+              //   {upsert:false},
+              //   function(err, r) {
+              //     callback()
+              //   })
+            // })
         })
     })
   })
@@ -496,7 +422,7 @@ var sendPollSMS = function(req, callback){
 var processInboundSMS = function (db,json,callback){
   var col=db.collection('polls')
   col.find({status:'active'}).toArray(function(err,actRes){
-    if(json.TRUMPIA.KEYWORD=='RHIC') {
+    if(json.TRUMPIA.KEYWORD=='WRAP') {
       console.log("found: "+json.TRUMPIA.KEYWORD)
       var votes=db.collection('questions')
       votes.insertOne({'question' : json.TRUMPIA.CONTENTS,'phonenumber':json.TRUMPIA.PHONENUMBER,'status':'new','question_id':Date.now(),'order':1,'type':'inbound'}, function(err, r) {
@@ -781,7 +707,7 @@ var checkKeywords = function(req){
 
 var removeKeywords = function(db, callback){
   var keycheck=db.collection('polls')
-  keycheck.find({status:'active',status:'pending',status:'inactive'}).toArray(function(err,res){
+  keycheck.find({status:'active',status:'inactive'}).toArray(function(err,res){
     var options = {
       uri: 'http://api.trumpia.com/rest/v1/PEDG2016/keyword',
       method: 'GET',
@@ -807,7 +733,7 @@ var removeKeywords = function(db, callback){
           }
         }
         for(var j=0;j<res.length;j++){
-          if(body2.keyword[i].keyword=='RHIC'||res[j].text1==body2.keyword[i].keyword||res[j].text2==body2.keyword[i].keyword||res[j].text3==body2.keyword[i].keyword||res[j].text4==body2.keyword[i].keyword){
+          if(body2.keyword[i].keyword=='WRAP'||res[j].text1==body2.keyword[i].keyword||res[j].text2==body2.keyword[i].keyword||res[j].text3==body2.keyword[i].keyword||res[j].text4==body2.keyword[i].keyword){
             keyword_used=true
           }
         }
