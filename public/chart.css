@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "TradeGothic";
-    src: url(TG.ttf) format('truetype');
+    font-family: "Trade Gothic LT Std";
+    src: url(TradeGothicLTStd-BdCn20.otf) format('truetype');
 }
 
 #chart {
@@ -10,25 +10,27 @@
 }
 
 .title{
-  font-family:"TradeGothic";
+  font-family:"Trade Gothic LT Std";
   text-transform:uppercase;
   font-size:56px;
   text-align:center;
   color:#666666;
   line-height:100%;
-  padding-top:10px
+  padding-top:20px
 }
 
 .legend{
   margin-bottom:70px;
-  padding-top:20px
+  padding-top:10px
 }
 
 .label{
-  font-family:"TradeGothic";
+  font-family:"Trade Gothic LT Std";
   text-transform:uppercase;
   font-size:30px;
   text-align:center;
+  vertical-align:center;
+  padding-top:5px
 }
 
 .green{
