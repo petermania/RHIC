@@ -12,22 +12,22 @@
 .title{
   font-family:"Trade Gothic LT Std";
   text-transform:uppercase;
-  font-size:56px;
+  font-size:40px;
   text-align:center;
   color:#666666;
   line-height:100%;
-  padding-top:20px
+  padding-top:40px
 }
 
 .legend{
-  margin-bottom:70px;
+  margin-bottom:60px;
   padding-top:10px
 }
 
 .label{
   font-family:"Trade Gothic LT Std";
   text-transform:uppercase;
-  font-size:30px;
+  font-size:20px;
   text-align:center;
   vertical-align:center;
   padding-top:5px
@@ -46,4 +46,11 @@
 .grey{
   background-color:#D2D2D2;
   color:#666666
+}
+
+.logo{
+  width:200px;
+  position:absolute;
+  top:560px;
+  left:960px
 }
