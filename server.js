@@ -220,6 +220,25 @@ app.get('/export-csv',function(req,res){
 
 app.get('/org',function (req,res){
   var options = {
+    uri: 'http://api.trumpia.com/rest/v1/PEDG2016/orgname',
+    method: 'GET',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+    }
+  }
+
+  request(options,function (err, httpResponse, body2) {
+    if (err) {
+      return console.error('SMS message send failed:', err)
+    }
+    console.log(body2)
+  })
+
+})
+
+app.get('/list',function (req,res){
+  var options = {
     uri: 'http://api.trumpia.com/rest/v1/PEDG2016/list',
     method: 'GET',
     headers:{
@@ -642,7 +661,7 @@ var checkKeywords = function(req){
         var keyword_body ={
           keyword: '',
           lists:1855421,
-          org_name_id:135715,
+          org_name_id:135940,
           allow_message:'true',
           auto_response :
              {
