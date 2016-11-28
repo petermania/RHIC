@@ -104,6 +104,15 @@ app.get('/viewer',function(req,res){
       console.log('one: '+vote1+' two: '+vote2+' three: '+vote3+' four: '+vote4)
       db.close()
       console.log('db closed')
+      if(text1.includes('1')){
+        text1=text1.replace('1','')
+      }
+      if(text2.includes('2')){
+        text2=text2.replace('2','')
+      }
+      if(text3.includes('3')){
+        text3=text3.replace('3','')
+      }
       res.render('viewer',{vote1 : vote1, text1:text1, vote2:vote2, text2:text2, vote3:vote3, text3:text3, vote4:vote4, text4:text4, response_no:num, name:name, title : 'RHIC Viewer'})
     })
   })
@@ -666,7 +675,7 @@ var checkKeywords = function(req){
           auto_response :
              {
                "frequency" : "1",
-               "message" : " Thank You for Voting!",
+               "message" : "  Thank You for Voting!",
              }
         }
 
