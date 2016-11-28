@@ -3,6 +3,8 @@
     src: url(TradeGothicLTStd-BdCn20.otf) format('truetype');
 }
 
+html, body {margin: 0; height: 100%; overflow: hidden}
+
 body{
   background-color:#005985;
 }
