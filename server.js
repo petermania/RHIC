@@ -233,7 +233,7 @@ app.get('/org',function (req,res){
     method: 'GET',
     headers:{
       'Content-Type':'application/json',
-      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      'X-Apikey':'YOUR API KEY HERE'
     }
   }
 
@@ -252,7 +252,7 @@ app.get('/list',function (req,res){
     method: 'GET',
     headers:{
       'Content-Type':'application/json',
-      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      'X-Apikey':'YOUR API KEY HERE'
     }
   }
 
@@ -272,7 +272,7 @@ app.get('/check',function(req,res){
     method: 'GET',
     headers:{
       'Content-Type':'application/json',
-      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      'X-Apikey':'YOUR API KEY HERE'
     }
   }
 
@@ -432,7 +432,7 @@ var sendPollSMS = function(req, callback){
     method: 'PUT',
     headers:{
       'Content-Type':'application/json',
-      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      'X-Apikey':'YOUR API KEY HERE'
     },
     body: JSON.stringify(body)
   }
@@ -634,7 +634,7 @@ var checkKeywords = function(req){
     method: 'GET',
     headers:{
       'Content-Type':'application/json',
-      'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+      'X-Apikey':'YOUR API KEY HERE'
     }
   }
 
@@ -684,7 +684,7 @@ var checkKeywords = function(req){
       method: 'PUT',
       headers:{
         'Content-Type':'application/json',
-        'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+        'X-Apikey':'YOUR API KEY HERE'
       },
       body:''
     }
@@ -741,7 +741,7 @@ var removeKeywords = function(db, callback){
       method: 'GET',
       headers:{
         'Content-Type':'application/json',
-        'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+        'X-Apikey':'YOUR API KEY HERE'
       }
     }
 
@@ -757,7 +757,7 @@ var removeKeywords = function(db, callback){
           method: 'DELETE',
           headers:{
             'Content-Type':'application/json',
-            'X-Apikey':'367ab873208291dc5b2eb7f907e491d6'
+            'X-Apikey':'YOUR API KEY HERE'
           }
         }
         for(var j=0;j<res.length;j++){
